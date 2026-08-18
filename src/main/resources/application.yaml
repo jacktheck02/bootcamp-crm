@@ -1,3 +1,7 @@
 spring:
   application:
     name: crm
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crm
+    username: crm
+    password: secret
