@@ -134,9 +134,9 @@ describe("App", () => {
 
         const newCustomer: Customer = {
             customerId: "CUS-1003",
-            fullName: "Taylor Morgan",
+            fullName: "Jason Momoa",
             email:
-                "taylor.morgan@example.test",
+                "jason.momoa@example.test",
             phone: "555-0103",
             status: "PROSPECT",
         }
@@ -157,12 +157,12 @@ describe("App", () => {
 
         await user.type(
             screen.getByLabelText("Full name"),
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         await user.type(
             screen.getByLabelText("Email"),
-            "taylor.morgan@example.test",
+            "jason.momoa@example.test",
         )
 
         await user.type(
@@ -180,9 +180,9 @@ describe("App", () => {
             expect(
                 crmApi.createCustomer,
             ).toHaveBeenCalledWith({
-                fullName: "Taylor Morgan",
+                fullName: "Jason Momoa",
                 email:
-                    "taylor.morgan@example.test",
+                    "jason.momoa@example.test",
                 phone: "555-0103",
                 status: "PROSPECT",
             })
@@ -192,7 +192,7 @@ describe("App", () => {
             await screen.findByRole(
                 "heading",
                 {
-                    name: "Taylor Morgan",
+                    name: "Jason Momoa",
                 },
             ),
         ).toBeInTheDocument()
@@ -416,7 +416,7 @@ describe("App", () => {
 
         await user.type(
             screen.getByLabelText("Full name"),
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         await user.type(

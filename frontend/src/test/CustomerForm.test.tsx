@@ -87,7 +87,7 @@ describe("CustomerForm", () => {
 
         await user.type(
             screen.getByLabelText("Full name"),
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         await user.click(
@@ -119,7 +119,7 @@ describe("CustomerForm", () => {
 
         await user.type(
             screen.getByLabelText("Full name"),
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         await user.type(
@@ -164,12 +164,12 @@ describe("CustomerForm", () => {
 
         await user.type(
             screen.getByLabelText("Full name"),
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         await user.type(
             screen.getByLabelText("Email"),
-            "taylor.morgan@example.test",
+            "jason.momoa@example.test",
         )
 
         await user.type(
@@ -189,8 +189,8 @@ describe("CustomerForm", () => {
         )
 
         expect(onSaved).toHaveBeenCalledWith({
-            fullName: "Taylor Morgan",
-            email: "taylor.morgan@example.test",
+            fullName: "Jason Momoa",
+            email: "jason.momoa@example.test",
             phone: "555-0103",
             status: "ACTIVE",
         })

@@ -8,8 +8,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.pnc.crm.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -17,8 +15,10 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-        SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
-                throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws
+                    Exception { // TODO: Throws Exception is a code smell which can be fixed when
+                                // auth is implemented
         http
                 // No server-rendered login page — React handles the UI
                 .formLogin(form -> form.disable())
@@ -29,16 +29,12 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // CORS so the React dev server can call the API
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Add JWT filter so requests carrying a Bearer token are authenticated
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(
                         auth ->
                                 auth
-                                        // Allow unauthenticated access to auth endpoints and health checks
-                                        .requestMatchers("/api/auth/**", "/actuator/**", "/health", "/", "/customers/**", "/customers").permitAll()
-                                        // Everything else requires authentication
+                                        // TODO: tighten this with real authentication eventually
                                         .anyRequest()
-                                        .authenticated());
+                                        .permitAll());
         return http.build();
     }
 
@@ -47,9 +43,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173")); // The react dev server
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        // Only expose and accept the headers the client will actually send
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
-        config.setAllowCredentials(true);
+        config.setAllowedHeaders(
+                List.of("*")); // This will also be changed once with have authorization setup
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

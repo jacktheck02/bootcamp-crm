@@ -47,9 +47,9 @@ describe("mock customer API", () => {
     it("creates a customer", async () => {
         const created =
             await mockCreateCustomer({
-                fullName: "Taylor Morgan",
+                fullName: "Jason Momoa",
                 email:
-                    "taylor.morgan@example.test",
+                    "jason.momoa@example.test",
                 phone: "555-0103",
                 status: "PROSPECT",
             })
@@ -57,11 +57,11 @@ describe("mock customer API", () => {
         expect(created.customerId).toBeTruthy()
 
         expect(created.fullName).toBe(
-            "Taylor Morgan",
+            "Jason Momoa",
         )
 
         expect(created.email).toBe(
-            "taylor.morgan@example.test",
+            "jason.momoa@example.test",
         )
     })
 

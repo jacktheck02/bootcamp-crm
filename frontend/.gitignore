@@ -1,8 +1,10 @@
+target/
 node_modules/
 dist/
 coverage/
 .env
-.env.local
+.env.example
+*.local
 *.log
 .DS_Store
 .vscode/
