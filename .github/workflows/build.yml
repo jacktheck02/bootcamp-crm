@@ -48,7 +48,8 @@ jobs:
          cache-dependency-path: ./client/package-lock.json
       - run: npm ci
       - run: npm run lint --if-present
-      - run: npm test
+      - run: npm run test -- --run
+      - run: npm run build
   
   java-sca:
     runs-on: ubuntu-latest
