@@ -1,5 +1,6 @@
 package com.pnc.crm.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,11 +18,15 @@ import java.util.UUID;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customer_id")
+    private Long id;
 
-    @NotNull private String fullName;
-    @NotNull @Email private String email;
+    @Column(name = "public_id", nullable = false, unique = true)
+    private String publicId = UUID.randomUUID().toString();
+
+    @NotNull @Column(name = "full_name", nullable = false) private String fullName;
+    @NotNull @Email @Column(name = "email", nullable = false) private String email;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -35,8 +40,16 @@ public class Customer {
         this.status = status;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public String getFullName() {
