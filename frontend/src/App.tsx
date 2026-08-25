@@ -191,9 +191,9 @@ export default function App() {
         try {
             const updated =
                 await updateCustomer(
-                    selectedCustomer.customerId,
-                    input,
-                )
+                        selectedCustomer.id,
+                        input,
+                    )
 
             // Update the selected profile immediately.
             setSelectedCustomer(updated)
@@ -202,8 +202,8 @@ export default function App() {
             // search/list state.
             setCustomers((current) =>
                 current.map((customer) =>
-                    customer.customerId ===
-                    updated.customerId
+                    customer.id ===
+                    updated.id
                         ? updated
                         : customer,
                 ),
@@ -240,7 +240,7 @@ export default function App() {
         try {
             const created =
                 await createInteraction(
-                    selectedCustomer.customerId,
+                    selectedCustomer.id,
                     input,
                 )
 
@@ -327,7 +327,7 @@ export default function App() {
                         onChange={(event) =>
                             setQuery(event.target.value)
                         }
-                        placeholder="Try Amina or CUS-1001"
+                        placeholder="Try searching for customer name"
                         autoComplete="off"
                     />
 
@@ -370,7 +370,7 @@ export default function App() {
                             <CustomerList
                                 customers={customers}
                                 selectedCustomerId={
-                                    selectedCustomer?.customerId ?? null
+                                    selectedCustomer?.id ?? null
                                 }
                                 onSelect={(customerId) => {
                                     void selectCustomer(
@@ -432,7 +432,7 @@ export default function App() {
                                             selectedCustomer
                                         ) {
                                             void selectCustomer(
-                                                selectedCustomer.customerId,
+                                                selectedCustomer.id,
                                             )
                                         }
                                     }}

@@ -149,7 +149,7 @@ describe("CustomerForm", () => {
             async (
                 input: CreateCustomerRequest,
             ): Promise<Customer> => ({
-                customerId: "CUS-1003",
+                id: "CUS-1003",
                 ...input,
             }),
         )

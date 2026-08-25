@@ -30,7 +30,7 @@ export function searchCustomers(query: string): Promise<Customer[]> {
 
     const suffix = params.toString() ? `?${params.toString()}` : ""
 
-    return request<Customer[]>(`/api/customers${suffix}`)
+    return request<Customer[]>(`/customers${suffix}`)
 }
 
 export function getCustomer(
@@ -41,7 +41,7 @@ export function getCustomer(
     }
 
     return request<Customer>(
-        `/api/customers/${encodeURIComponent(customerId)}`,
+        `/customers/${encodeURIComponent(customerId)}`,
     )
 }
 
@@ -52,7 +52,7 @@ export function createCustomer(
         return mockCreateCustomer(input)
     }
 
-    return request<Customer>("/api/customers", {
+    return request<Customer>("/customers", {
         method: "POST",
         body: JSON.stringify(input),
     })
@@ -70,7 +70,7 @@ export async function updateCustomer(
     }
 
     return request<Customer>(
-        `/api/customers/${encodeURIComponent(customerId)}`,
+        `/customers/${encodeURIComponent(customerId)}`,
         {
             method: "PUT",
             body: JSON.stringify(input),
@@ -86,7 +86,7 @@ export function getInteractions(
     }
 
     return request<Interaction[]>(
-        `/api/customers/${encodeURIComponent(customerId)}/interactions`,
+        `/customers/${encodeURIComponent(customerId)}/interactions`,
     )
 }
 
@@ -99,7 +99,7 @@ export function createInteraction(
     }
 
     return request<Interaction>(
-        `/api/customers/${encodeURIComponent(customerId)}/interactions`,
+        `/customers/${encodeURIComponent(customerId)}/interactions`,
         {
             method: "POST",
             body: JSON.stringify(input),

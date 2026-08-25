@@ -19,28 +19,18 @@ describe("mock customer API", () => {
     })
 
     it("contains Amina Khan", async () => {
-        const customers =
-            await mockSearchCustomers("Amina")
+        const customers = await mockSearchCustomers("Amina")
 
         expect(
-            customers.some(
-                (customer) =>
-                    customer.customerId ===
-                    "CUS-1001",
-            ),
+            customers.some((customer) => customer.id === "CUS-1001"),
         ).toBe(true)
     })
 
     it("contains Ravi Singh", async () => {
-        const customers =
-            await mockSearchCustomers("Ravi")
+        const customers = await mockSearchCustomers("Ravi")
 
         expect(
-            customers.some(
-                (customer) =>
-                    customer.customerId ===
-                    "CUS-1002",
-            ),
+            customers.some((customer) => customer.id === "CUS-1002"),
         ).toBe(true)
     })
 
@@ -54,7 +44,7 @@ describe("mock customer API", () => {
                 status: "PROSPECT",
             })
 
-        expect(created.customerId).toBeTruthy()
+        expect(created.id).toBeTruthy()
 
         expect(created.fullName).toBe(
             "Jason Momoa",
@@ -66,22 +56,14 @@ describe("mock customer API", () => {
     })
 
     it("updates a customer", async () => {
-        const updated =
-            await mockUpdateCustomer(
-                "CUS-1001",
-                {
-                    fullName:
-                        "Amina Khan Updated",
-                    email:
-                        "amina.updated@example.test",
-                    phone: "555-0199",
-                    status: "SUSPENDED",
-                },
-            )
+        const updated = await mockUpdateCustomer("CUS-1001", {
+            fullName: "Amina Khan Updated",
+            email: "amina.updated@example.test",
+            phone: "555-0199",
+            status: "SUSPENDED",
+        })
 
-        expect(updated.customerId).toBe(
-            "CUS-1001",
-        )
+        expect(updated.id).toBe("CUS-1001")
 
         expect(updated.fullName).toBe(
             "Amina Khan Updated",
@@ -101,10 +83,7 @@ describe("mock customer API", () => {
     })
 
     it("can retrieve the updated customer", async () => {
-        const customer =
-            await mockGetCustomer(
-                "CUS-1001",
-            )
+        const customer = await mockGetCustomer("CUS-1001")
 
         expect(customer.fullName).toBe(
             "Amina Khan Updated",

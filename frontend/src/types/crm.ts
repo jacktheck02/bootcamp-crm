@@ -5,7 +5,7 @@ export type CustomerStatus =
     | "CLOSED"
 
 export interface Customer {
-    customerId: string
+    id: string
     fullName: string
     email: string
     phone?: string

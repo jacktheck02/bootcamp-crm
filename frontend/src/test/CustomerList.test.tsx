@@ -13,14 +13,14 @@ import type { Customer } from "../types/crm"
 
 const customers: Customer[] = [
     {
-        customerId: "CUS-1001",
+        id: "CUS-1001",
         fullName: "Amina Khan",
         email: "amina.khan@example.test",
         phone: "555-0101",
         status: "ACTIVE",
     },
     {
-        customerId: "CUS-1002",
+        id: "CUS-1002",
         fullName: "Ravi Singh",
         email: "ravi.singh@example.test",
         phone: "555-0102",

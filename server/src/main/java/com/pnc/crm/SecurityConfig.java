@@ -27,8 +27,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // CORS so the React dev server can call the API
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                        // CORS so the React dev server can call the API and allow serving frontend from Spring Boot
+                        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(
                         auth ->
                                 auth
@@ -41,7 +41,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // The react dev server
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080")); // The react dev server and Spring Boot static server
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(
                 List.of("*")); // This will also be changed once with have authorization setup

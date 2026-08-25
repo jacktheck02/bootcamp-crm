@@ -103,7 +103,7 @@ export function CustomerEditForm({
             </div>
 
             <p className="customer-id">
-                {customer.customerId}
+                {customer.id}
             </p>
 
             {error && (

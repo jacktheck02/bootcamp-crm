@@ -16,19 +16,19 @@ export function CustomerList({
         <ul className="customer-list" aria-label="Customers">
             {customers.map((customer) => {
                 const selected =
-                    customer.customerId === selectedCustomerId
+                    customer.id === selectedCustomerId
 
                 return (
-                    <li key={customer.customerId}>
+                    <li key={customer.id}>
                         <button
                             type="button"
                             className={`customer-row${selected ? " selected" : ""}`}
-                            onClick={() => onSelect(customer.customerId)}
+                            onClick={() => onSelect(customer.id)}
                             aria-current={selected ? "true" : undefined}
                         >
                           <span className="customer-row-main">
                             <strong>{customer.fullName}</strong>
-                            <span className="muted">{customer.customerId}</span>
+                            <span className="muted">{customer.id}</span>
                           </span>
                             <StatusBadge status={customer.status} />
                         </button>

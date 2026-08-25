@@ -8,14 +8,14 @@ import type {
 
 const customers: Customer[] = [
     {
-        customerId: "CUS-1001",
+        id: "CUS-1001",
         fullName: "Amina Khan",
         email: "amina.khan@example.com",
         phone: "555-0101",
         status: "ACTIVE",
     },
     {
-        customerId: "CUS-1002",
+        id: "CUS-1002",
         fullName: "Ravi Singh",
         email: "ravi.singh@example.com",
         phone: "555-0102",
@@ -57,7 +57,7 @@ export async function mockSearchCustomers(
     }
 
     return customers.filter((customer) =>
-        [customer.customerId, customer.fullName, customer.email].some(
+        [customer.id, customer.fullName, customer.email].some(
             (value) => value.toLowerCase().includes(normalized),
         ),
     )
@@ -68,9 +68,7 @@ export async function mockGetCustomer(
 ): Promise<Customer> {
     await delay()
 
-    const customer = customers.find(
-        (item) => item.customerId === customerId,
-    )
+    const customer = customers.find((item) => item.id === customerId)
 
     if (!customer) {
         throw new Error("Customer was not found.")
@@ -84,8 +82,9 @@ export async function mockCreateCustomer(
 ): Promise<Customer> {
     await delay(350)
 
+
     const customer: Customer = {
-        customerId: `CUS-${1000 + customers.length + 1}`,
+        id: `CUS-${1000 + customers.length + 1}`,
         fullName: input.fullName,
         email: input.email,
         phone: input.phone,
@@ -93,7 +92,7 @@ export async function mockCreateCustomer(
     }
 
     customers.push(customer)
-    interactions.set(customer.customerId, [])
+    interactions.set(customer.id, [])
 
     return { ...customer }
 }
@@ -104,10 +103,7 @@ export async function mockUpdateCustomer(
 ): Promise<Customer> {
     await delay(350)
 
-    const index = customers.findIndex(
-        (customer) =>
-            customer.customerId === customerId,
-    )
+    const index = customers.findIndex((customer) => customer.id === customerId)
 
     if (index === -1) {
         throw new Error(
