@@ -1,94 +1,79 @@
-import {
-    render,
-    screen,
-} from "@testing-library/react"
+import { render, screen } from "@testing-library/react";
 
-import userEvent from "@testing-library/user-event"
+import userEvent from "@testing-library/user-event";
 
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest";
 
-import { CustomerList } from "../components/CustomerList"
+import { CustomerList } from "../components/CustomerList";
 
-import type { Customer } from "../types/crm"
+import type { Customer } from "../types/crm";
 
 const customers: Customer[] = [
-    {
-        customerId: "CUS-1001",
-        fullName: "Amina Khan",
-        email: "amina.khan@example.test",
-        phone: "555-0101",
-        status: "ACTIVE",
-    },
-    {
-        customerId: "CUS-1002",
-        fullName: "Ravi Singh",
-        email: "ravi.singh@example.test",
-        phone: "555-0102",
-        status: "PROSPECT",
-    },
-]
+  {
+    customerId: "CUS-1001",
+    fullName: "Amina Khan",
+    email: "amina.khan@example.test",
+    phone: "555-0101",
+    status: "ACTIVE",
+  },
+  {
+    customerId: "CUS-1002",
+    fullName: "Ravi Singh",
+    email: "ravi.singh@example.test",
+    phone: "555-0102",
+    status: "PROSPECT",
+  },
+];
 
 describe("CustomerList", () => {
-    it("renders Amina and Ravi", () => {
-        render(
-            <CustomerList
-                customers={customers}
-                selectedCustomerId={null}
-                onSelect={vi.fn()}
-            />,
-        )
+  it("renders Amina and Ravi", () => {
+    render(
+      <CustomerList
+        customers={customers}
+        selectedCustomerId={null}
+        onSelect={vi.fn()}
+      />,
+    );
 
-        expect(
-            screen.getByText("Amina Khan"),
-        ).toBeInTheDocument()
+    expect(screen.getByText("Amina Khan")).toBeInTheDocument();
 
-        expect(
-            screen.getByText("Ravi Singh"),
-        ).toBeInTheDocument()
-    })
+    expect(screen.getByText("Ravi Singh")).toBeInTheDocument();
+  });
 
-    it("selects a customer", async () => {
-        const user = userEvent.setup()
-        const onSelect = vi.fn()
+  it("selects a customer", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
 
-        render(
-            <CustomerList
-                customers={customers}
-                selectedCustomerId={null}
-                onSelect={onSelect}
-            />,
-        )
+    render(
+      <CustomerList
+        customers={customers}
+        selectedCustomerId={null}
+        onSelect={onSelect}
+      />,
+    );
 
-        await user.click(
-            screen.getByRole("button", {
-                name: /Amina Khan/i,
-            }),
-        )
+    await user.click(
+      screen.getByRole("button", {
+        name: /Amina Khan/i,
+      }),
+    );
 
-        expect(onSelect).toHaveBeenCalledWith(
-            "CUS-1001",
-        )
-    })
+    expect(onSelect).toHaveBeenCalledWith("CUS-1001");
+  });
 
-    it("marks the selected customer", () => {
-        render(
-            <CustomerList
-                customers={customers}
-                selectedCustomerId="CUS-1001"
-                onSelect={vi.fn()}
-            />,
-        )
+  it("marks the selected customer", () => {
+    render(
+      <CustomerList
+        customers={customers}
+        selectedCustomerId="CUS-1001"
+        onSelect={vi.fn()}
+      />,
+    );
 
-        const button =
-            screen.getByRole("button", {
-                name: /Amina Khan/i,
-            })
+    const button = screen.getByRole("button", {
+      name: /Amina Khan/i,
+    });
 
-        expect(
-            button,
-        ).toHaveAttribute(
-            "aria-current",
-            "true",
-        )
-    })
-})
+    expect(button).toHaveAttribute("aria-current", "true");
+  });
+});

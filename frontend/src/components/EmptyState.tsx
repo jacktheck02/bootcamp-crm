@@ -1,16 +1,13 @@
 interface EmptyStateProps {
-    title: string
-    message: string
+  title: string;
+  message: string;
 }
 
-export function EmptyState({
-                               title,
-                               message,
-                           }: EmptyStateProps) {
-    return (
-        <div className="state-message empty">
-            <h3>{title}</h3>
-            <p>{message}</p>
-        </div>
-    )
+export function EmptyState({ title, message }: EmptyStateProps) {
+  return (
+    <div className="state-message empty">
+      <h3>{title}</h3>
+      <p>{message}</p>
+    </div>
+  );
 }
