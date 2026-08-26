@@ -39,24 +39,9 @@ public class CustomerController {
 
     @PostMapping
     public Customer addCustomer(@Valid @RequestBody Customer customer) {
-        // If client didn't supply a public-facing customer ID, generate the next one starting at 1001.
-        if (customer.getPublicId() == null || customer.getPublicId().trim().isEmpty()) {
-            List<Customer> all = repository.findAll();
-            int max = 0;
-            for (Customer c : all) {
-                String cid = c.getPublicId();
-                if (cid == null) continue;
-                String digits = cid.replaceAll("\\D", "");
-                if (digits.isEmpty()) continue;
-                try {
-                    int n = Integer.parseInt(digits);
-                    if (n > max) max = n;
-                } catch (NumberFormatException ignored) {}
-            }
-            int next = (max == 0) ? 1001 : (max + 1);
-            customer.setPublicId("CUS-" + next);
+        if (customer.publicIdIsNull()) {
+            customer.setPublicId(service.generatePublicId());
         }
-
         return repository.save(customer);
     }
 
