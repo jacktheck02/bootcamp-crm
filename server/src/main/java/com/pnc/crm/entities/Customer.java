@@ -16,7 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "customers")
 public class Customer {
 
     @Id
