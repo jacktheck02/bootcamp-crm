@@ -1,13 +1,6 @@
 package com.pnc.crm.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -17,22 +10,26 @@ import java.util.UUID;
 public class Interaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "interaction_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(name = "type")
     private String type;
 
+    @Column(name = "summary")
     private String summary;
 
+    @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
     public Interaction() {}
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

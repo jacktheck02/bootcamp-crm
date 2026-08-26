@@ -4,9 +4,6 @@ spring:
       group-id: test-group
   application:
     name: crm
-  jpa:
-    hibernate:
-      ddl-auto: update
   datasource:
     url: jdbc:postgresql://localhost:5432/crm
     username: crm
@@ -17,3 +14,11 @@ pnc:
 crm:
   kafka:
     customer-events-topic: customer-events
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true

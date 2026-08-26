@@ -1,4 +1,4 @@
-package com.pnc.crm.controller;
+package com.pnc.crm.controllers;
 
 import com.pnc.crm.security.CrmUserDetailsService;
 import com.pnc.crm.security.JwtService;

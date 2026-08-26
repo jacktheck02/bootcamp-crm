@@ -22,7 +22,7 @@ public class CustomerService {
     @Transactional
     public Customer create(String publicId, String fullName, String email, CustomerStatus status) {
         var entity = new Customer();
-        entity.setPublicId(publicId);
+        entity.setPublicId(generatePublicId());
         entity.setFullName(fullName);
         entity.setEmail(email);
         entity.setStatus(status);
@@ -34,5 +34,10 @@ public class CustomerService {
         var pageable = PageRequest.of(page, size, Sort.by("id").descending());
         var customerStatus = CustomerStatus.valueOf(status.toUpperCase());
         return repository.findByStatus(customerStatus, pageable);
+    }
+
+    public String generatePublicId() {
+        long count = repository.count() + 1;
+        return "CUS-" + (1000 + count);
     }
 }
