@@ -70,7 +70,7 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Only expose and accept the headers the client will actually send
         config.setAllowedHeaders(
-                List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+                List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "X-Correlation-Id"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

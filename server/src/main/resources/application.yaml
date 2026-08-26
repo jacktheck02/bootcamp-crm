@@ -23,9 +23,3 @@ crm:
   flyway:
     enabled: true
     baseline-on-migrate: true
-pnc:
-  security:
-    jwt-secret: test-secret
-crm:
-  kafka:
-    customer-events-topic: customer-events
