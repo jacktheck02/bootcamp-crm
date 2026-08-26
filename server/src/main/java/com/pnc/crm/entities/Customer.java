@@ -25,11 +25,12 @@ public class Customer {
     private UUID id;
 
     // Public-facing customer id like "CUS-1001". Stored separately and unique.
-    @Column(name = "public_id", unique = true, nullable = true)
-    private String customerId;
+    @Column(name = "public_id", nullable = false, unique = true)
+    private String publicId;
 
-    @NotNull private String fullName;
-    @NotNull @Email private String email;
+    @NotNull @Column(name = "full_name", nullable = false) private String fullName;
+    @NotNull @Email @Column(name = "email", nullable = false) private String email;
+
     private String phone;
 
     @NotNull
@@ -49,12 +50,12 @@ public class Customer {
     }
 
     @JsonProperty("id")
-    public String getCustomerId() {
-        return customerId;
+    public String getPublicId() {
+        return publicId;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public String getFullName() {

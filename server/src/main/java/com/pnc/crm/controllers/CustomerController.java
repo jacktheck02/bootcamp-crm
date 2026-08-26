@@ -5,8 +5,10 @@ import com.pnc.crm.entities.Interaction;
 import com.pnc.crm.repositories.CustomerRepository;
 import com.pnc.crm.repositories.InteractionRepository;
 
+import com.pnc.crm.service.CustomerService;
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,20 +30,22 @@ public class CustomerController {
 
     private final CustomerRepository repository;
     private final InteractionRepository interactionRepository;
+    private final CustomerService service;
 
-    public CustomerController(CustomerRepository repository, InteractionRepository interactionRepository) {
+    public CustomerController(CustomerRepository repository, InteractionRepository interactionRepository, CustomerService service) {
         this.repository = repository;
         this.interactionRepository = interactionRepository;
+        this.service = service;
     }
 
     @PostMapping
     public Customer addCustomer(@Valid @RequestBody Customer customer) {
         // If client didn't supply a public-facing customer ID, generate the next one starting at 1001.
-        if (customer.getCustomerId() == null || customer.getCustomerId().trim().isEmpty()) {
+        if (customer.getPublicId() == null || customer.getPublicId().trim().isEmpty()) {
             List<Customer> all = repository.findAll();
             int max = 0;
             for (Customer c : all) {
-                String cid = c.getCustomerId();
+                String cid = c.getPublicId();
                 if (cid == null) continue;
                 String digits = cid.replaceAll("\\D", "");
                 if (digits.isEmpty()) continue;
@@ -53,7 +55,7 @@ public class CustomerController {
                 } catch (NumberFormatException ignored) {}
             }
             int next = (max == 0) ? 1001 : (max + 1);
-            customer.setCustomerId("CUS-" + next);
+            customer.setPublicId("CUS-" + next);
         }
 
         return repository.save(customer);
@@ -71,7 +73,7 @@ public class CustomerController {
 
         return all.stream()
                 .filter(c -> {
-                    String id = c.getCustomerId() != null ? c.getCustomerId() : "";
+                    String id = c.getPublicId() != null ? c.getPublicId() : "";
                     return id.toLowerCase().contains(normalized)
                             || (c.getFullName() != null && c.getFullName().toLowerCase().contains(normalized))
                             || (c.getEmail() != null && c.getEmail().toLowerCase().contains(normalized));
@@ -79,14 +81,22 @@ public class CustomerController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/paginated")
+    public Page<Customer> list(
+            @RequestParam(defaultValue = "ACTIVE") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return service.pageByStatus(status, page, size);
+    }
+
     @GetMapping("/{id}")
     public Customer getCustomer(@PathVariable("id") String id) {
-        return repository.findByCustomerId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        return repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
     }
 
     @PutMapping("/{id}")
     public Customer updateCustomer(@PathVariable("id") String id, @Valid @RequestBody Customer input) {
-        Customer existing = repository.findByCustomerId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        Customer existing = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         existing.setFullName(input.getFullName());
         existing.setEmail(input.getEmail());
@@ -98,7 +108,7 @@ public class CustomerController {
 
     @GetMapping("/{id}/interactions")
     public List<Interaction> getInteractions(@PathVariable("id") String id) {
-        Customer customer = repository.findByCustomerId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        Customer customer = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         return interactionRepository.findByCustomerOrderByCreatedAtDesc(customer);
     }
@@ -106,7 +116,7 @@ public class CustomerController {
     @PostMapping("/{id}/interactions")
     @ResponseStatus(HttpStatus.CREATED)
     public Interaction createInteraction(@PathVariable("id") String id, @RequestBody Interaction input) {
-        Customer customer = repository.findByCustomerId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        Customer customer = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         Interaction interaction = new Interaction();
         interaction.setCustomer(customer);
