@@ -45,7 +45,7 @@ public class Customer {
         this.status = status;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
