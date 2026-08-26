@@ -25,7 +25,7 @@ public class Customer {
     private UUID id;
 
     // Public-facing customer id like "CUS-1001". Stored separately and unique.
-    @Column(name = "public_id", nullable = false, unique = true)
+    @Column(name = "public_id", unique = true)
     private String publicId;
 
     @NotNull @Column(name = "full_name", nullable = false) private String fullName;

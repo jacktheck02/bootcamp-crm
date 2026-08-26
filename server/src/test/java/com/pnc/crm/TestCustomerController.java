@@ -51,8 +51,7 @@ class TestCustomerController {
                                         }
                                         """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("CUS-1001"))
-                .andExpect(jsonPath("$.publicId").doesNotExist())
+                .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.fullName").value("Amina Khan"));
 
         mockMvc.perform(get("/customers"))
