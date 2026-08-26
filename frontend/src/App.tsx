@@ -353,9 +353,7 @@ export default function App() {
             !profileError &&
             selectedCustomer && (
               <>
-                {/* ==================================================
-                                    Edit customer
-                  ================================================== */}
+                {/* Edit customer */}
                 {showEditCustomerForm && (
                   <CustomerEditForm
                     customer={selectedCustomer}
@@ -367,9 +365,7 @@ export default function App() {
                   />
                 )}
 
-                {/* ==================================================
-                                    Customer profile
-                  ================================================== */}
+                {/* Customer profile */}
                 {!showEditCustomerForm && (
                   <>
                     <CustomerProfile
@@ -389,9 +385,7 @@ export default function App() {
                       }}
                     />
 
-                    {/* ==================================================
-                                            Add interaction form
-                      ================================================== */}
+                    {/* Add interaction form */}
                     {showInteractionForm && (
                       <InteractionForm
                         saving={savingInteraction}

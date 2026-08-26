@@ -1,11 +1,11 @@
-package com.pnc.crm.controllers;
+package com.pnc.crm.api;
 
 import com.pnc.crm.entities.Customer;
 import com.pnc.crm.entities.Interaction;
 import com.pnc.crm.repositories.CustomerRepository;
 import com.pnc.crm.repositories.InteractionRepository;
-
 import com.pnc.crm.service.CustomerService;
+
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -59,26 +59,6 @@ public class CustomerController {
         }
 
         return repository.save(customer);
-    }
-
-    @GetMapping
-    public List<Customer> getAllCustomers(@RequestParam(name = "q", required = false) String q) {
-        List<Customer> all = repository.findAll();
-
-        if (q == null || q.trim().isEmpty()) {
-            return all;
-        }
-
-        String normalized = q.trim().toLowerCase();
-
-        return all.stream()
-                .filter(c -> {
-                    String id = c.getPublicId() != null ? c.getPublicId() : "";
-                    return id.toLowerCase().contains(normalized)
-                            || (c.getFullName() != null && c.getFullName().toLowerCase().contains(normalized))
-                            || (c.getEmail() != null && c.getEmail().toLowerCase().contains(normalized));
-                })
-                .collect(Collectors.toList());
     }
 
     @GetMapping("/paginated")
