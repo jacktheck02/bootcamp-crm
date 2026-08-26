@@ -45,7 +45,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // The react dev server
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080")); // The react dev server and Spring Boot static server
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Only expose and accept the headers the client will actually send
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));

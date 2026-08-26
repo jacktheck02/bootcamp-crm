@@ -77,7 +77,7 @@ export function CustomerEditForm({
         </div>
       </div>
 
-      <p className="customer-id">{customer.customerId}</p>
+      <p className="customer-id">{customer.id}</p>
 
       {error && (
         <div id="edit-customer-form-error" className="form-error" role="alert">

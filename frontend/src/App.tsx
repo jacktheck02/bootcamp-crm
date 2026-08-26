@@ -154,7 +154,7 @@ export default function App() {
     setProfileError(null);
 
     try {
-      const updated = await updateCustomer(selectedCustomer.customerId, input);
+      const updated = await updateCustomer(selectedCustomer.id, input);
 
       // Update the selected profile immediately.
       setSelectedCustomer(updated);
@@ -163,7 +163,7 @@ export default function App() {
       // search/list state.
       setCustomers((current) =>
         current.map((customer) =>
-          customer.customerId === updated.customerId ? updated : customer,
+          customer.id === updated.id ? updated : customer,
         ),
       );
 
@@ -192,7 +192,7 @@ export default function App() {
 
     try {
       const created = await createInteraction(
-        selectedCustomer.customerId,
+        selectedCustomer.id,
         input,
       );
 
@@ -256,7 +256,7 @@ export default function App() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Try Amina or CUS-1001"
+            placeholder="Try searching for customer name"
             autoComplete="off"
           />
 
@@ -285,7 +285,7 @@ export default function App() {
           {!loadingCustomers && !customerError && customers.length > 0 && (
             <CustomerList
               customers={customers}
-              selectedCustomerId={selectedCustomer?.customerId ?? null}
+              selectedCustomerId={selectedCustomer?.id ?? null}
               onSelect={(customerId) => {
                 void selectCustomer(customerId);
               }}
@@ -324,7 +324,7 @@ export default function App() {
                 message={profileError}
                 onRetry={() => {
                   if (selectedCustomer) {
-                    void selectCustomer(selectedCustomer.customerId);
+                    void selectCustomer(selectedCustomer.id);
                   }
                 }}
               />
@@ -353,9 +353,7 @@ export default function App() {
             !profileError &&
             selectedCustomer && (
               <>
-                {/* ==================================================
-                                    Edit customer
-                  ================================================== */}
+                {/* Edit customer */}
                 {showEditCustomerForm && (
                   <CustomerEditForm
                     customer={selectedCustomer}
@@ -367,9 +365,7 @@ export default function App() {
                   />
                 )}
 
-                {/* ==================================================
-                                    Customer profile
-                  ================================================== */}
+                {/* Customer profile */}
                 {!showEditCustomerForm && (
                   <>
                     <CustomerProfile
@@ -389,9 +385,7 @@ export default function App() {
                       }}
                     />
 
-                    {/* ==================================================
-                                            Add interaction form
-                      ================================================== */}
+                    {/* Add interaction form */}
                     {showInteractionForm && (
                       <InteractionForm
                         saving={savingInteraction}

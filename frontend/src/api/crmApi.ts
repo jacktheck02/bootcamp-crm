@@ -30,7 +30,7 @@ export function searchCustomers(query: string): Promise<Customer[]> {
 
   const suffix = params.toString() ? `?${params.toString()}` : "";
 
-  return request<Customer[]>(`/api/customers${suffix}`);
+  return request<Customer[]>(`/customers${suffix}`);
 }
 
 export function getCustomer(customerId: string): Promise<Customer> {
@@ -38,7 +38,7 @@ export function getCustomer(customerId: string): Promise<Customer> {
     return mockGetCustomer(customerId);
   }
 
-  return request<Customer>(`/api/customers/${encodeURIComponent(customerId)}`);
+  return request<Customer>(`/customers/${encodeURIComponent(customerId)}`);
 }
 
 export function createCustomer(
@@ -48,7 +48,7 @@ export function createCustomer(
     return mockCreateCustomer(input);
   }
 
-  return request<Customer>("/api/customers", {
+  return request<Customer>("/customers", {
     method: "POST",
     body: JSON.stringify(input),
   });
@@ -62,7 +62,7 @@ export async function updateCustomer(
     return mockUpdateCustomer(customerId, input);
   }
 
-  return request<Customer>(`/api/customers/${encodeURIComponent(customerId)}`, {
+  return request<Customer>(`/customers/${encodeURIComponent(customerId)}`, {
     method: "PUT",
     body: JSON.stringify(input),
   });
@@ -74,7 +74,7 @@ export function getInteractions(customerId: string): Promise<Interaction[]> {
   }
 
   return request<Interaction[]>(
-    `/api/customers/${encodeURIComponent(customerId)}/interactions`,
+    `/customers/${encodeURIComponent(customerId)}/interactions`,
   );
 }
 
@@ -87,7 +87,7 @@ export function createInteraction(
   }
 
   return request<Interaction>(
-    `/api/customers/${encodeURIComponent(customerId)}/interactions`,
+    `/customers/${encodeURIComponent(customerId)}/interactions`,
     {
       method: "POST",
       body: JSON.stringify(input),

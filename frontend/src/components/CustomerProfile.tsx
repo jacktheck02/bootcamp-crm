@@ -20,7 +20,7 @@ export function CustomerProfile({
         <div>
           <p className="eyebrow">Customer profile</p>
           <h2 id="profile-heading">{customer.fullName}</h2>
-          <p className="muted">{customer.customerId}</p>
+          <p className="muted">{customer.id}</p>
         </div>
 
         <div className="profile-actions">

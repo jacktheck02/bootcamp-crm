@@ -20,7 +20,7 @@ vi.mock("../api/crmApi", () => ({
 }));
 
 const amina: Customer = {
-  customerId: "CUS-1001",
+  id: "CUS-1001",
   fullName: "Amina Khan",
   email: "amina.khan@example.test",
   phone: "555-0101",
@@ -28,7 +28,7 @@ const amina: Customer = {
 };
 
 const ravi: Customer = {
-  customerId: "CUS-1002",
+  id: "CUS-1002",
   fullName: "Ravi Singh",
   email: "ravi.singh@example.test",
   phone: "555-0102",
@@ -98,7 +98,7 @@ describe("App", () => {
     const user = userEvent.setup();
 
     const newCustomer: Customer = {
-      customerId: "CUS-1003",
+      id: "CUS-1003",
       fullName: "Jason Momoa",
       email: "jason.momoa@example.test",
       phone: "555-0103",
