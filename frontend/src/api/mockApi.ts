@@ -28,7 +28,7 @@ const interactions = new Map<string, Interaction[]>([
     "CUS-1001",
     [
       {
-        interactionId: "INT-1001",
+        id: "INT-1001",
         customerId: "CUS-1001",
         type: "CALL",
         summary: "Followed up regarding account onboarding.",
@@ -134,7 +134,7 @@ export async function mockCreateInteraction(
   await delay(350);
 
   const interaction: Interaction = {
-    interactionId: `INT-${Date.now()}`,
+    id: `INT-${Date.now()}`,
     customerId,
     type: input.type,
     summary: input.summary,

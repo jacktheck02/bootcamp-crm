@@ -18,7 +18,7 @@ const customer: Customer = {
 
 const interactions: Interaction[] = [
   {
-    interactionId: "INT-1001",
+    id: "INT-1001",
     customerId: "CUS-1001",
     type: "CALL",
     summary: "Discussed account requirements.",

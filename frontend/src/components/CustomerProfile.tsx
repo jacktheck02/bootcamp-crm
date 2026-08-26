@@ -70,7 +70,7 @@ export function CustomerProfile({
         ) : (
           <ol className="interaction-list">
             {interactions.map((interaction) => (
-              <li key={interaction.interactionId}>
+              <li key={interaction.id}>
                 <div className="interaction-meta">
                   <strong>{interaction.type}</strong>
                   <time dateTime={interaction.createdAt}>

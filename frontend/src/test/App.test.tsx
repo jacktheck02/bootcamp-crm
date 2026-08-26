@@ -369,7 +369,7 @@ describe("App", () => {
     const user = userEvent.setup();
 
     vi.mocked(crmApi.createInteraction).mockResolvedValue({
-      interactionId: "INT-1001",
+      id: "INT-1001",
       customerId: "CUS-1001",
       type: "CALL",
       summary: "Discussed account requirements.",

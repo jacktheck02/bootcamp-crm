@@ -25,7 +25,7 @@ export interface UpdateCustomerRequest {
 export type InteractionType = "CALL" | "EMAIL" | "MEETING" | "NOTE";
 
 export interface Interaction {
-  interactionId: string;
+  id: string;
   customerId: string;
   type: InteractionType;
   summary: string;

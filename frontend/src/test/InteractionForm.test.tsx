@@ -43,7 +43,7 @@ describe("InteractionForm", () => {
 
     const onSaved = vi.fn(
       async (input: CreateInteractionRequest): Promise<Interaction> => ({
-        interactionId: "INT-1002",
+        id: "INT-1002",
         customerId: "CUS-1001",
         ...input,
         createdAt: "2026-08-20T15:00:00Z",
