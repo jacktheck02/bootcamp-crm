@@ -10,23 +10,26 @@ import java.util.UUID;
 public class Interaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "interaction_id")
-    private UUID id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(name = "type")
     private String type;
 
+    @Column(name = "summary")
     private String summary;
 
+    @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
     public Interaction() {}
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 

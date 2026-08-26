@@ -20,10 +20,9 @@ import java.util.UUID;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonIgnore
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    private UUID id;
+    private Long id;
 
     // Public-facing customer id like "CUS-1001". Stored separately and unique.
     @Column(name = "public_id", unique = true)
@@ -46,7 +45,7 @@ public class Customer {
         this.status = status;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
@@ -91,10 +90,7 @@ public class Customer {
         this.status = status;
     }
 
-    public boolean idIsNull() {
-        if ( publicId == null) {
-            return true;
-        }
-        return false;
+    public boolean publicIdIsNull() {
+        return publicId == null;
     }
 }

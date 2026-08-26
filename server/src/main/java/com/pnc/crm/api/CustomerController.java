@@ -39,7 +39,7 @@ public class CustomerController {
 
     @PostMapping
     public Customer addCustomer(@Valid @RequestBody Customer customer) {
-        if (customer.idIsNull()) {
+        if (customer.publicIdIsNull()) {
             customer.setPublicId(service.generatePublicId());
         }
         return repository.save(customer);
