@@ -1,4 +1,7 @@
 spring:
+  kafka:
+    consumer:
+      group-id: test-group
   application:
     name: crm
   datasource:
@@ -13,3 +16,10 @@ spring:
       hibernate.jdbc.time_zone: UTC
   flyway:
     enabled: true
+    baseline-on-migrate: true
+pnc:
+  security:
+    jwt-secret: test-secret
+crm:
+  kafka:
+    customer-events-topic: customer-events
