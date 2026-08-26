@@ -23,12 +23,13 @@ import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, TestSecurityConfig.class, TestJwtConfig.class})
 class TestCustomerController {
 
     @Autowired MockMvc mockMvc;
 
     @Autowired CustomerRepository repository;
+
 
     @BeforeEach
     void cleanDatabase() {

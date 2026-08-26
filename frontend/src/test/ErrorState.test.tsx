@@ -1,51 +1,34 @@
-import {
-    render,
-    screen,
-} from "@testing-library/react"
+import { render, screen } from "@testing-library/react";
 
-import userEvent from "@testing-library/user-event"
+import userEvent from "@testing-library/user-event";
 
-import {
-    describe,
-    expect,
-    it,
-    vi,
-} from "vitest"
+import { describe, expect, it, vi } from "vitest";
 
-import { ErrorState } from "../components/ErrorState"
+import { ErrorState } from "../components/ErrorState";
 
 describe("ErrorState", () => {
-    it("displays the error", () => {
-        render(
-            <ErrorState
-                message="Unable to load customers."
-            />,
-        )
+  it("displays the error", () => {
+    render(<ErrorState message="Unable to load customers." />);
 
-        expect(
-            screen.getByRole("alert"),
-        ).toHaveTextContent(
-            "Unable to load customers.",
-        )
-    })
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Unable to load customers.",
+    );
+  });
 
-    it("retries when requested", async () => {
-        const user = userEvent.setup()
-        const onRetry = vi.fn()
+  it("retries when requested", async () => {
+    const user = userEvent.setup();
+    const onRetry = vi.fn();
 
-        render(
-            <ErrorState
-                message="Unable to load customers."
-                onRetry={onRetry}
-            />,
-        )
+    render(
+      <ErrorState message="Unable to load customers." onRetry={onRetry} />,
+    );
 
-        await user.click(
-            screen.getByRole("button", {
-                name: /retry/i,
-            }),
-        )
+    await user.click(
+      screen.getByRole("button", {
+        name: /retry/i,
+      }),
+    );
 
-        expect(onRetry).toHaveBeenCalledOnce()
-    })
-})
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+});

@@ -8,6 +8,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.pnc.crm.security.JwtAuthenticationFilter;
 
 import java.util.List;
 
@@ -15,10 +17,8 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws
-                    Exception { // TODO: Throws Exception is a code smell which can be fixed when
-                                // auth is implemented
+        SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+                throws Exception {
         http
                 // No server-rendered login page — React handles the UI
                 .formLogin(form -> form.disable())
@@ -27,14 +27,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        // CORS so the React dev server can call the API and allow serving frontend from Spring Boot
-                        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // CORS so the React dev server can call the API
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // Add JWT filter so requests carrying a Bearer token are authenticated
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(
                         auth ->
                                 auth
-                                        // TODO: tighten this with real authentication eventually
+                                        // Allow unauthenticated access to auth endpoints and health checks
+                                        .requestMatchers("/api/auth/**", "/actuator/**", "/health", "/", "/customers/**", "/customers").permitAll()
+                                        // Everything else requires authentication
                                         .anyRequest()
-                                        .permitAll());
+                                        .authenticated());
         return http.build();
     }
 
@@ -43,8 +47,9 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080")); // The react dev server and Spring Boot static server
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(
-                List.of("*")); // This will also be changed once with have authorization setup
+        // Only expose and accept the headers the client will actually send
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
