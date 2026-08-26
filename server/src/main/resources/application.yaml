@@ -1,4 +1,7 @@
 spring:
+  kafka:
+    consumer:
+      group-id: test-group
   application:
     name: crm
   jpa:
@@ -8,3 +11,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/crm
     username: crm
     password: secret
+pnc:
+  security:
+    jwt-secret: test-secret
+crm:
+  kafka:
+    customer-events-topic: customer-events
