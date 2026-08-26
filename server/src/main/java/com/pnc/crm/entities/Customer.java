@@ -49,6 +49,7 @@ public class Customer {
         return id;
     }
 
+    @JsonProperty("id")
     public String getPublicId() {
         return publicId;
     }

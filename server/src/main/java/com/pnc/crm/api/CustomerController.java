@@ -5,7 +5,6 @@ import com.pnc.crm.entities.Interaction;
 import com.pnc.crm.repositories.CustomerRepository;
 import com.pnc.crm.repositories.InteractionRepository;
 import com.pnc.crm.service.CustomerService;
-
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -59,6 +58,11 @@ public class CustomerController {
         }
 
         return repository.save(customer);
+    }
+
+    @GetMapping
+    public List<Customer> getAllCustomers() {
+        return repository.findAll();
     }
 
     @GetMapping("/paginated")
