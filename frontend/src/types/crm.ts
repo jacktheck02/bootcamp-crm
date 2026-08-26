@@ -1,7 +1,7 @@
 export type CustomerStatus = "PROSPECT" | "ACTIVE" | "SUSPENDED" | "CLOSED";
 
 export interface Customer {
-  customerId: string;
+  id: string;
   fullName: string;
   email: string;
   phone?: string;

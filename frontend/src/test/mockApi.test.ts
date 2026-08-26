@@ -17,7 +17,7 @@ describe("mock customer API", () => {
     const customers = await mockSearchCustomers("Amina");
 
     expect(
-      customers.some((customer) => customer.customerId === "CUS-1001"),
+      customers.some((customer) => customer.id === "CUS-1001"),
     ).toBe(true);
   });
 
@@ -25,7 +25,7 @@ describe("mock customer API", () => {
     const customers = await mockSearchCustomers("Ravi");
 
     expect(
-      customers.some((customer) => customer.customerId === "CUS-1002"),
+      customers.some((customer) => customer.id === "CUS-1002"),
     ).toBe(true);
   });
 
@@ -37,7 +37,7 @@ describe("mock customer API", () => {
       status: "PROSPECT",
     });
 
-    expect(created.customerId).toBeTruthy();
+    expect(created.id).toBeTruthy();
 
     expect(created.fullName).toBe("Jason Momoa");
 
@@ -52,7 +52,7 @@ describe("mock customer API", () => {
       status: "SUSPENDED",
     });
 
-    expect(updated.customerId).toBe("CUS-1001");
+    expect(updated.id).toBe("CUS-1001");
 
     expect(updated.fullName).toBe("Amina Khan Updated");
 

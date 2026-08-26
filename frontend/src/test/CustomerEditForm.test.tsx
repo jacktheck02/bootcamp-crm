@@ -9,7 +9,7 @@ import { CustomerEditForm } from "../components/CustomerEditForm";
 import type { Customer, UpdateCustomerRequest } from "../types/crm";
 
 const customer: Customer = {
-  customerId: "CUS-1001",
+  id: "CUS-1001",
   fullName: "Amina Khan",
   email: "amina.khan@example.test",
   phone: "555-0101",

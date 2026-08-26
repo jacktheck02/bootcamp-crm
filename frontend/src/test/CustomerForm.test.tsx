@@ -95,7 +95,7 @@ describe("CustomerForm", () => {
 
     const onSaved = vi.fn(
       async (input: CreateCustomerRequest): Promise<Customer> => ({
-        customerId: "CUS-1003",
+        id: "CUS-1003",
         ...input,
       }),
     );

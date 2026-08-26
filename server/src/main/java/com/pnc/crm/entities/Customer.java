@@ -1,5 +1,7 @@
 package com.pnc.crm.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,15 +20,18 @@ import java.util.UUID;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonIgnore
+    private UUID id;
 
-    @Column(name = "public_id", nullable = false, unique = true)
-    private String publicId = UUID.randomUUID().toString();
+    // Public-facing customer id like "CUS-1001". Stored separately and unique.
+    @Column(name = "public_id", unique = true)
+    private String publicId;
 
     @NotNull @Column(name = "full_name", nullable = false) private String fullName;
     @NotNull @Email @Column(name = "email", nullable = false) private String email;
+
+    private String phone;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -40,10 +45,11 @@ public class Customer {
         this.status = status;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
+    @JsonProperty("id")
     public String getPublicId() {
         return publicId;
     }
@@ -66,6 +72,14 @@ public class Customer {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public CustomerStatus getStatus() {
