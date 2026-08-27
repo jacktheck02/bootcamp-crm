@@ -1,4 +1,5 @@
-import { ApiError } from "./ApiError";
+import { ApiError } from "../api/ApiError";
+import { getToken } from "../security/auth"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
@@ -10,6 +11,11 @@ export async function request<T>(
 
   headers.set("Content-Type", "application/json");
   headers.set("X-Correlation-Id", "lab-request-001");
+
+  const token = getToken();
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
 
   const response = await fetch(`${baseUrl}${path}`, {
     ...init,

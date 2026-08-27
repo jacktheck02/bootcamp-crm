@@ -46,8 +46,20 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return repository.findAll();
+    public List<Customer> getAllCustomers(@RequestParam(value = "q", required = false) String q) {
+        // If no query provided, return all customers.
+        if (q == null || q.trim().isEmpty()) {
+            return repository.findAll();
+        }
+
+        String normalized = q.trim().toLowerCase();
+
+        // Basic in-memory search across publicId, fullName, and email.
+        return repository.findAll().stream()
+            .filter(c -> (c.getPublicId() != null && c.getPublicId().toLowerCase().contains(normalized))
+                      || (c.getFullName() != null && c.getFullName().toLowerCase().contains(normalized))
+                      || (c.getEmail() != null && c.getEmail().toLowerCase().contains(normalized)))
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/paginated")

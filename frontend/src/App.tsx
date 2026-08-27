@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { Login } from "./components/LoginState"
+import { getUser, logout } from "./security/auth"
 
 import {
   createCustomer,
@@ -29,6 +31,9 @@ import type {
 } from "./types/crm";
 
 export default function App() {
+  // Auth state
+  const [user, setUser] = useState(getUser());
+
   // Customer search/list state
   const [query, setQuery] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -207,6 +212,10 @@ export default function App() {
     }
   }
 
+  if (!user) {
+    return <Login onSuccess={() => setUser(getUser())} />;
+  }
+
   // Rendering
   return (
     <div className="app-shell">
@@ -216,6 +225,14 @@ export default function App() {
           <p className="eyebrow">Northstar CRM</p>
 
           <h1>Agent workspace</h1>
+          <p className="small">Signed in as: {user.username}</p>
+        </div>
+        <div>
+          <button type="button" onClick={() => {
+                logout();setUser(null);}}
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
