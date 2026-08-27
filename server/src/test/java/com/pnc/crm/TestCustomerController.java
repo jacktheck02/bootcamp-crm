@@ -1,6 +1,7 @@
 package com.pnc.crm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -45,6 +46,7 @@ class TestCustomerController {
         // for testing.
         mockMvc.perform(
                         post("/customers")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
@@ -74,6 +76,7 @@ class TestCustomerController {
     void rejectsInvalidEmail() throws Exception {
         mockMvc.perform(
                         post("/customers")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
@@ -102,6 +105,7 @@ class TestCustomerController {
 
         mockMvc.perform(
                         put("/api/customers/CUS-2001")
+                                .with(csrf())
                                 .header("Authorization", "Bearer " + agentToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
@@ -134,6 +138,7 @@ class TestCustomerController {
 
         mockMvc.perform(
                         put("/api/customers/CUS-2002")
+                                .with(csrf())
                                 .header("Authorization", "Bearer " + adminToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
