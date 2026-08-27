@@ -3,9 +3,11 @@ WORKDIR /web
 COPY package*.json ./
 RUN npm ci
 COPY . .
+ENV VITE_USE_MOCK_API=false
+# VITE_API_BASE_URL intentionally unset -> relative /api/ URLs -> nginx proxy
 RUN npm run build
 
-FROM nginx:alpine
+FROM nginxinc/nginx-unprivileged:alpine
 COPY --from=build /web/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+COPY default.conf.template /etc/nginx/templates/default.conf.template
+EXPOSE 8080
