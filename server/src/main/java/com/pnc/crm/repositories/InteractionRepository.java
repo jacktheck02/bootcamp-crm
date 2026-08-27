@@ -6,8 +6,7 @@ import com.pnc.crm.entities.Interaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.UUID;
 
-public interface InteractionRepository extends JpaRepository<Interaction, UUID> {
+public interface InteractionRepository extends JpaRepository<Interaction, Long> {
     List<Interaction> findByCustomerOrderByCreatedAtDesc(Customer customer);
 }

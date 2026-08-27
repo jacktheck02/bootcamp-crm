@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pnc.crm.entities.Customer;
 import com.pnc.crm.entities.CustomerStatus;
 import com.pnc.crm.repositories.CustomerRepository;
+import com.pnc.crm.repositories.InteractionRepository;
 import com.pnc.crm.security.JwtService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +33,13 @@ class TestCustomerController {
     @Autowired MockMvc mockMvc;
 
     @Autowired CustomerRepository repository;
+    @Autowired InteractionRepository interactionRepository;
     @Autowired JwtService jwtService;
 
 
     @BeforeEach
     void cleanDatabase() {
+        interactionRepository.deleteAll();
         repository.deleteAll();
     }
 
@@ -155,5 +158,40 @@ class TestCustomerController {
 
         Customer persisted = repository.findByPublicId("CUS-2002").orElseThrow();
         assertEquals(CustomerStatus.ACTIVE, persisted.getStatus());
+    }
+
+    @Test
+    void interactionsCanBeCreatedAndLoadedForCustomer() throws Exception {
+        Customer existing = new Customer();
+        existing.setPublicId("CUS-3001");
+        existing.setFullName("Jordan Miles");
+        existing.setEmail("jordan@mail.com");
+        existing.setPhone("555-0301");
+        existing.setStatus(CustomerStatus.ACTIVE);
+        repository.save(existing);
+
+        mockMvc.perform(
+                        post("/api/customers/CUS-3001/interactions")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "type": "NOTE",
+                                          "summary": "Followed up by phone"
+                                        }
+                                        """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.interactionId").isNotEmpty())
+                .andExpect(jsonPath("$.customerId").value("CUS-3001"))
+                .andExpect(jsonPath("$.type").value("NOTE"))
+                .andExpect(jsonPath("$.summary").value("Followed up by phone"));
+
+        mockMvc.perform(get("/api/customers/CUS-3001/interactions"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].interactionId").isNotEmpty())
+                .andExpect(jsonPath("$[0].customerId").value("CUS-3001"))
+                .andExpect(jsonPath("$[0].type").value("NOTE"));
     }
 }
