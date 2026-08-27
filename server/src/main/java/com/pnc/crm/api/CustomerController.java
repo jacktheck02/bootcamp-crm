@@ -95,15 +95,17 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/interactions")
-    public List<Interaction> getInteractions(@PathVariable("id") String id) {
+    public List<InteractionResponse> getInteractions(@PathVariable("id") String id) {
         Customer customer = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
-        return interactionRepository.findByCustomerOrderByCreatedAtDesc(customer);
+        return interactionRepository.findByCustomerOrderByCreatedAtDesc(customer).stream()
+                .map(interaction -> toInteractionResponse(id, interaction))
+                .toList();
     }
 
     @PostMapping("/{id}/interactions")
     @ResponseStatus(HttpStatus.CREATED)
-    public Interaction createInteraction(@PathVariable("id") String id, @RequestBody Interaction input) {
+    public InteractionResponse createInteraction(@PathVariable("id") String id, @RequestBody Interaction input) {
         Customer customer = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         Interaction interaction = new Interaction();
@@ -112,7 +114,8 @@ public class CustomerController {
         interaction.setSummary(input.getSummary());
         interaction.setCreatedAt(OffsetDateTime.now());
 
-        return interactionRepository.save(interaction);
+        Interaction saved = interactionRepository.save(interaction);
+        return toInteractionResponse(id, saved);
     }
 
     static class ResourceNotFoundException extends RuntimeException {
@@ -134,4 +137,20 @@ public class CustomerController {
         return authentication.getAuthorities().stream()
                 .anyMatch(authority -> expectedAuthority.equals(authority.getAuthority()));
     }
+
+    private static InteractionResponse toInteractionResponse(String customerPublicId, Interaction interaction) {
+        return new InteractionResponse(
+                String.valueOf(interaction.getId()),
+                customerPublicId,
+                interaction.getType(),
+                interaction.getSummary(),
+                interaction.getCreatedAt());
+    }
+
+    record InteractionResponse(
+            String interactionId,
+            String customerId,
+            String type,
+            String summary,
+            OffsetDateTime createdAt) {}
 }
