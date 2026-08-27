@@ -26,7 +26,7 @@ export function CustomerList({
               aria-current={selected ? "true" : undefined}
             >
               <span className="customer-row-main">
-                <strong>{customer.fullName}</strong>
+                <strong title={customer.fullName}>{customer.fullName}</strong>
                 <span className="muted">{customer.id}</span>
               </span>
               <StatusBadge status={customer.status} />

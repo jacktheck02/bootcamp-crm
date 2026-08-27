@@ -62,6 +62,17 @@ export default function App() {
   const [showEditCustomerForm, setShowEditCustomerForm] = useState(false);
   const [showInteractionForm, setShowInteractionForm] = useState(false);
 
+  // Activity / audit trail
+  type ActivityItem = {
+    id: string;
+    kind: 'customer-created' | 'customer-updated' | 'interaction-created';
+    timestamp: string;
+    message: string;
+  };
+
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+
+
   // Load customers
   const loadCustomers = useCallback(async () => {
     setLoadingCustomers(true);
@@ -134,6 +145,17 @@ export default function App() {
       // A new customer starts with no interactions.
       setInteractions([]);
 
+      // Record activity
+      setActivity((cur) => [
+        {
+          id: `${Date.now()}-${Math.random()}`,
+          kind: 'customer-created',
+          timestamp: new Date().toISOString(),
+          message: `Added customer: ${created.fullName} (${created.id})`,
+        },
+        ...cur,
+      ]);
+
       // Close the creation form.
       setShowCustomerForm(false);
 
@@ -158,6 +180,9 @@ export default function App() {
     setSavingCustomerUpdate(true);
     setProfileError(null);
 
+    // Capture previous state so we can detect changed attributes (without showing values)
+    const prev = selectedCustomer;
+
     try {
       const updated = await updateCustomer(selectedCustomer.id, input);
 
@@ -171,6 +196,27 @@ export default function App() {
           customer.id === updated.id ? updated : customer,
         ),
       );
+
+      // Determine which top-level attributes changed (do not include values)
+      const changed: string[] = [];
+      if (prev.fullName !== input.fullName) changed.push('fullName');
+      if (prev.email !== input.email) changed.push('email');
+      // phone can be undefined
+      if ((prev.phone ?? '') !== (input.phone ?? '')) changed.push('phone');
+      if (prev.status !== input.status) changed.push('status');
+
+      // Record activity mentioning which attributes changed but not the values
+      setActivity((cur) => [
+        {
+          id: `${Date.now()}-${Math.random()}`,
+          kind: 'customer-updated',
+          timestamp: new Date().toISOString(),
+          message: changed.length > 0
+            ? `Updated customer (${updated.id}): modified ${changed.join(', ')}`
+            : `Updated customer (${updated.id})`,
+        },
+        ...cur,
+      ]);
 
       // Close the edit form.
       setShowEditCustomerForm(false);
@@ -204,6 +250,17 @@ export default function App() {
       // Put the new interaction at the top.
       setInteractions((current) => [created, ...current]);
 
+      // Record activity (only type and customer id)
+      setActivity((cur) => [
+        {
+          id: `${Date.now()}-${Math.random()}`,
+          kind: 'interaction-created',
+          timestamp: created.createdAt ?? new Date().toISOString(),
+      message: `Interaction (${created.type}) for customer ${selectedCustomer.id}`,
+        },
+        ...cur,
+      ]);
+
       setShowInteractionForm(false);
 
       return created;
@@ -217,6 +274,13 @@ export default function App() {
   }
 
   // Rendering
+
+  const totalCustomers = customers.length;
+  const statusCounts = customers.reduce((acc: Record<string, number>, c) => {
+    acc[c.status] = (acc[c.status] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <div className="app-shell">
       {/* Header */}
@@ -235,6 +299,38 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {/* Customer stats (below header) */}
+      <div className="stats-row" aria-label="Customer summary">
+        <div className="panel stats-panel">
+        <div style={{display: 'flex', gap: 18, alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
+            <div className="stats-item">
+              <div className="muted">Total customers</div>
+              <div className="stats-value">{totalCustomers}</div>
+            </div>
+
+            <div className="stats-item">
+              <div className="muted">Active</div>
+              <div className="stats-value">{statusCounts['ACTIVE'] ?? 0}</div>
+            </div>
+
+            <div className="stats-item">
+              <div className="muted">Prospect</div>
+              <div className="stats-value">{statusCounts['PROSPECT'] ?? 0}</div>
+            </div>
+
+            <div className="stats-item">
+              <div className="muted">Suspended</div>
+              <div className="stats-value">{statusCounts['SUSPENDED'] ?? 0}</div>
+            </div>
+
+            <div className="stats-item">
+              <div className="muted">Closed</div>
+              <div className="stats-value">{statusCounts['CLOSED'] ?? 0}</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main workspace */}
       <main className="workspace">
@@ -414,6 +510,33 @@ export default function App() {
                     )}
                   </>
                 )}
+
+                {/* Activity panel below selected customer */}
+                <div className="panel activity-panel" style={{ marginTop: 16 }}>
+                  <div className="section-heading">
+                    <div>
+                      <p className="eyebrow">Activity</p>
+                      <h3>Recent activity</h3>
+                    </div>
+                  </div>
+
+                  {activity.length === 0 ? (
+                    <div className="state-message empty" style={{ padding: 16 }}>
+                      No recent activity
+                    </div>
+                  ) : (
+                    <ul className="activity-list" aria-live="polite">
+                      {activity.map((item) => (
+                        <li key={item.id} className="activity-item">
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div>{item.message}</div>
+                            <time>{new Date(item.timestamp).toLocaleString()}</time>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </>
             )}
         </section>
