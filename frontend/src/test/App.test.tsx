@@ -39,6 +39,10 @@ describe("App", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    // Ensure the app is considered signed-in for tests by seeding localStorage
+    localStorage.clear();
+    localStorage.setItem("crm:accessToken", "lab.test.ADMIN.hash");
+
     vi.mocked(crmApi.searchCustomers).mockResolvedValue([amina, ravi]);
 
     vi.mocked(crmApi.getCustomer).mockResolvedValue(amina);

@@ -3,7 +3,10 @@ package com.pnc.crm.controllers;
 import com.pnc.crm.security.CrmUserDetailsService;
 import com.pnc.crm.security.JwtService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,21 +30,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
         String username = body.getOrDefault("username", "");
         String password = body.getOrDefault("password", "");
         try {
             UserDetails user = userDetailsService.loadUserByUsername(username);
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid credentials"));
             }
             String role = user.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
             String token = jwtService.issueToken(username, role);
-            return Map.of("accessToken", token, "tokenType", "Bearer");
-        } catch (ResponseStatusException ex) {
-            throw ex;
+            return ResponseEntity.ok(Map.of("accessToken", token, "tokenType", "Bearer"));
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid credentials"));
         } catch (RuntimeException ex) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", ex);
         }
     }
 }
