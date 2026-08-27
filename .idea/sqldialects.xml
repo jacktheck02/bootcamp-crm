@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/server/src/main/resources/db/migration/V1__crm_schema.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/src/main/resources/db/migration/V2__align_customer_and_interaction_columns.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/src/main/resources/db/migration/V3__seed_initial_customers.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/src/main/resources/db/migration/V4__upsert_initial_customers.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/target/classes/db/migration/V1__crm_schema.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/server/target/classes/db/migration/V2__align_customer_and_interaction_columns.sql" dialect="GenericSQL" />
+  </component>
+</project>

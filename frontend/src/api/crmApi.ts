@@ -16,7 +16,7 @@ import type {
 } from "../types/crm";
 
 const useMockApi =
-  (import.meta.env.VITE_USE_MOCK_API ?? "true").toLowerCase() === "true";
+  (import.meta.env.VITE_USE_MOCK_API ?? "false").toLowerCase() === "true";
 
 export function searchCustomers(query: string): Promise<Customer[]> {
   if (useMockApi) {

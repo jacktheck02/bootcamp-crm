@@ -7,7 +7,7 @@ CREATE TABLE customers (
                            version       BIGINT NOT NULL DEFAULT 0,
                            created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
                            updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-                           CONSTRAINT ck_customer_status CHECK (status IN ('PROSPECT', 'ACTIVE', 'CLOSED'))
+                           CONSTRAINT ck_customer_status CHECK (status IN ('PROSPECT', 'ACTIVE', 'SUSPENDED', 'CLOSED'))
 );
 
 CREATE TABLE interactions (

@@ -32,7 +32,11 @@ services:
 
   backend:
     build: ./server
-    depends_on: [postgres, kafka]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     ports: ["8080:8080"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/crm
