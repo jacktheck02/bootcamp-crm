@@ -9,6 +9,9 @@ import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping({"/customers", "/api/customers"})
 public class CustomerController {
 
     private final CustomerRepository repository;
@@ -79,6 +82,10 @@ public class CustomerController {
     public Customer updateCustomer(@PathVariable("id") String id, @Valid @RequestBody Customer input) {
         Customer existing = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
+        if (isStatusChange(existing, input) && !currentUserHasRole("ADMIN")) {
+            throw new AccessDeniedException("Only admins can change customer status");
+        }
+
         existing.setFullName(input.getFullName());
         existing.setEmail(input.getEmail());
         existing.setPhone(input.getPhone());
@@ -112,5 +119,19 @@ public class CustomerController {
         ResourceNotFoundException(String message) {
             super(message);
         }
+    }
+
+    private static boolean isStatusChange(Customer existing, Customer input) {
+        return input.getStatus() != null && input.getStatus() != existing.getStatus();
+    }
+
+    private static boolean currentUserHasRole(String role) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        String expectedAuthority = "ROLE_" + role;
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> expectedAuthority.equals(authority.getAuthority()));
     }
 }

@@ -50,6 +50,8 @@ public class SecurityConfig {
                                                 "/actuator/**",
                                                 "/health",
                                                 "/",
+                                                "/api/customers/**",
+                                                "/api/customers",
                                                 "/customers/**",
                                                 "/customers")
                                         .permitAll()
