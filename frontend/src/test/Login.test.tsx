@@ -49,6 +49,7 @@ describe("Login component", () => {
 
     await user.click(screen.getByRole("button", { name: /Sign in/i }));
 
+    expect(mockLogin).toHaveBeenCalledWith("admin1", "agent1");
     expect(await screen.findByRole("alert")).toHaveTextContent("Invalid credentials");
 
     expect(onSuccess).not.toHaveBeenCalled();
