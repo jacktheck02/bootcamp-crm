@@ -161,7 +161,7 @@ jobs:
           oc set image deployment/kafka    kafka=${{ env.REGISTRY }}/pnc-bootcamp-crm-kafka:${{ github.sha }}
           oc rollout status deployment/postgres --timeout=180s
           oc rollout status deployment/kafka    --timeout=180s
-          oc rollout status deployment/backend  --timeout=240s
+          oc rollout status deployment/backend  --timeout=480s
           oc rollout status deployment/frontend --timeout=180s
 
       - name: Smoke test
