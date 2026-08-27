@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: quay.io/jacktheck02/pnc-bootcamp-crm-client:v0.1.2
+          image: quay.io/jacktheck02/pnc-bootcamp-crm-client:v0.1.3
           ports:
             - containerPort: 8080
           readinessProbe:

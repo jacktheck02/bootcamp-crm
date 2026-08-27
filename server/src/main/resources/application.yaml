@@ -8,12 +8,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/crm
     username: ${POSTGRES_USER:crm}
     password: ${POSTGRES_PASSWORD:secret}
-pnc:
-  security:
-    jwt-secret: ${JWT_SECRET:test-secret}
-crm:
-  kafka:
-    customer-events-topic: customer-events
   jpa:
     hibernate:
       ddl-auto: validate
@@ -23,3 +17,9 @@ crm:
   flyway:
     enabled: true
     baseline-on-migrate: true
+pnc:
+  security:
+    jwt-secret: ${JWT_SECRET:test-secret}
+crm:
+  kafka:
+    customer-events-topic: customer-events

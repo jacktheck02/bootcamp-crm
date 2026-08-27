@@ -54,6 +54,8 @@ forward instead.
 | Deploy step fails on `oc login` / 401 | ServiceAccount token expired | `oc create token github-actions --duration=720h` → update `OCP_TOKEN` secret in GitHub |
 | `ImagePullBackOff` | Quay repo private, tag typo, or robot lost access | Make repo public / fix tag / check robot perms |
 | Backend crashloops, logs show Flyway error | Bad migration SQL | `oc logs deploy/backend`; fix migration, merge (pipeline redeploys); never edit an applied migration — add a new one |
+| Backend crashloops: `Found non-empty schema(s) ... no schema history table` | First Flyway image hit a pre-Flyway (hand-migrated) database, or `baseline-on-migrate` got misplaced under the dead `crm.flyway` namespace instead of `spring.flyway` | One-time: `oc set env deployment/backend SPRING_FLYWAY_BASELINE_ON_MIGRATE=true`; permanent: keep `spring.flyway.baseline-on-migrate: true` in `application.yaml` |
+| Rollout stuck at "old replicas are pending termination" then times out | Usually NOT a stuck old pod — the new pod never became Ready (check `oc get pods` for CrashLoopBackOff) and the rollout correctly keeps the old one serving | `oc logs` the NEW ReplicaSet's pod; fix the crash cause; the rollout completes on its own |
 | Backend 500s, `relation/column does not exist` | Schema drift slipped past validate | Check backend logs; confirm Flyway applied latest migration |
 | Smoke test fails, pods healthy | Router propagation | Re-run the failed job; curl retries usually cover this |
 | Pods pending / quota errors | Sandbox limits (keep `revisionHistoryLimit: 1`) | `oc describe quota`; delete old ReplicaSets |
