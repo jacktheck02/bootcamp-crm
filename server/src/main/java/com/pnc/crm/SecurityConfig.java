@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 // No browser basic-auth popup
                 .httpBasic(basic -> basic.disable())
-                .csrf(csrf -> csrf.disable())
+                // Keep CSRF enabled by default but ignore stateless API routes
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/customers/**", "/customers"))
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // CORS so the React dev server can call the API
