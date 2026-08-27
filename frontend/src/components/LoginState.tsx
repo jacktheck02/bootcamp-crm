@@ -29,7 +29,7 @@ export function Login({ onSuccess }: Props) {
                 <h1>Sign in</h1>
 
                 <div className="form-group">
-                    <label htmlFor="login-username">Username</label>
+                    <label htmlFor="login-username">Username: </label>
                     <input
                         id="login-username"
                         value={username}
@@ -40,7 +40,7 @@ export function Login({ onSuccess }: Props) {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="login-password">Password</label>
+                    <label htmlFor="login-password">Password: </label>
                     <input
                         id="login-password"
                         type="password"
