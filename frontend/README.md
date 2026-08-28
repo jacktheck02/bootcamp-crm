@@ -1,68 +1,76 @@
 # Northstar CRM Frontend
 
-### Journey
+React 19 + TypeScript + Vite single-page app for the Bootcamp CRM. It talks to
+the Spring Boot API in `../server` (or to an in-browser mock).
 
-The implemented agent journey is:
+## Agent journey
 
-1. Search customers by name, email, or customer ID.
-2. Select customer.
-3. View the selected customer's profile.
+1. Sign in (`agent1` / `agent1`, or `admin1` / `admin1`).
+2. Search customers by name, email, or customer ID.
+3. Select a customer and view the profile.
 4. View the customer's interaction history.
-5. Add a new interaction.
-6. Add a new customer.
-7. Select the newly-created customer.
-8. Edit an existing customer's full name, email, phone number, or status
-9. Save customer changes.
-10. Cancel customer editing without saving.
-11. Receive explicit validation feedback for invalid customer data.
-12. See loading, empty, and error states.
-13. Continue using the UI when the backend is unavailable by using mock mode.
+5. Add an interaction.
+6. Add a customer, then select the newly-created customer.
+7. Edit a customer's full name, email, phone, or status.
+8. Save or cancel customer edits.
+9. Get field-level validation feedback for invalid customer data.
+10. See loading, empty, and error states.
+11. Keep working with the backend down by enabling mock mode.
 
-### Requirements
+Status changes are accepted by the UI for any user; the backend rejects them
+with 403 unless the signed-in user is `admin1`.
 
-Use a current Node.js release supported by the installed Vite version.
-For the current Vite line, Node.js 20.19+ or 22.12+ is required.
-Verify the versions using
+## Requirements
+
+Node.js 20.19+ or 22.12+ (Vite 8). CI uses Node 22.
 
 ```bash
 node --version
 npm --version
 ```
 
-### Install
-
-From the frontend project directory, run
+## Install
 
 ```bash
 npm install
 ```
 
-### Mock Mode
+## Environment
 
-To enable or disable mock mode when using the frontend, change the mock api variable in the .env file
-After changing to either enable or disable mock mode, make sure to restart Vite
+Copy `.env.example` to `.env` and adjust as needed. Restart Vite after any change.
 
-### Running as Dev
+| Variable | Default | Meaning |
+| -------- | ------- | ------- |
+| `VITE_USE_MOCK_API` | `false` | `true` serves all data from `src/api/mockApi.ts` — no backend needed. |
+| `VITE_API_BASE_URL` | `/api` | Prefix for API calls. Left as `/api` so the Vite dev proxy (and prod nginx) can route to the backend. |
 
-Use the following command to run as a dev
+## Run (dev)
 
 ```bash
 npm run dev
 ```
 
-Open the URL printed by Vite, it should look like
+Open the URL Vite prints (`http://localhost:5173`). With `VITE_USE_MOCK_API=false`
+the dev server proxies `/api` to `http://localhost:8080`.
 
-```text
-http://localhost:5173
+## Test
+
+```bash
+npm run test -- --run   # or: npm run test:run
 ```
 
-### Example jsons
+## Build
 
-Customer:
+```bash
+npm run build            # tsc -b && vite build
+```
+
+## Example payloads
+
+Create customer (`POST /customers`):
 
 ```json
 {
-  "customerId": "CUS-1001",
   "fullName": "Amina Khan",
   "email": "amina.khan@example.com",
   "phone": "555-1001",
@@ -70,12 +78,10 @@ Customer:
 }
 ```
 
-Using the features of the frontend, a customer can be got, created, or updated.
-The customer needs to have a valid full name, email, and status in order to be successfully created.
-When editing a customer, the user can change their full name, email, phone, or status.
-These changes can then be either saved or canceled.
+`fullName`, `email`, and `status` are required. The server assigns the public
+`id` (`CUS-1001`, …). Update uses the same shape.
 
-Interaction:
+Create interaction (`POST /customers/{id}/interactions`):
 
 ```json
 {
@@ -84,45 +90,33 @@ Interaction:
 }
 ```
 
-Using the features of the frontend, an interaction can be got or created.
+## Auth / token handling
 
-### Testing
+- `src/security/auth.ts` is the live auth module. On login it stores the bearer
+  token in `localStorage` under `crm:accessToken`; `src/api/http.ts` attaches it
+  as `Authorization: Bearer …` and always sends `X-Correlation-Id: lab-request-001`.
+- `getUser()` derives `{username, role}` by splitting the
+  `lab.<username>.<role>.<sig>` token — it is not independently verified client
+  side.
+- `src/security/tokenStore.ts` is a deliberately memory-only token holder kept
+  as a reference implementation (and covered by `tokenStore.test.ts`); the app
+  does **not** currently use it. Moving auth onto it would remove the token from
+  browser storage.
 
-When performing a test, use the following command:
+## Security boundary
 
-```bash
-npm run test -- --run
-```
+Do not put backend secrets in Vite env vars — anything `VITE_*` is compiled into
+client code. No database, Kafka, or JWT signing secrets belong here.
 
-### Production Building
+## Project structure
 
-When building to check for any errors in the frontend. use:
-
-```bash
-npm run build
-```
-
-### JWT handling
-
-The frontend's token store is memory-only.
-JWTs are not written to either localStorage or sessionStorage.
-
-### Security boundary
-
-DO NOT place backend secrets into the Vite environment variables.
-Vit exposes client-side variables to browser code.
-Never include PostgreSQL passwords, Kafka credentials, database credentials, or any other type of secret.
-
-### Project Structure
-
-```
+```text
 src/
 ├── api/
 │   ├── ApiError.ts
-│   ├── crmApi.ts
-│   ├── http.ts
-│   └── tokenStore.ts
-│
+│   ├── crmApi.ts        # real vs mock dispatch + endpoint paths
+│   ├── http.ts          # fetch wrapper: base URL, auth header, error mapping
+│   └── mockApi.ts       # in-browser fake backend
 ├── components/
 │   ├── CustomerEditForm.tsx
 │   ├── CustomerForm.tsx
@@ -132,94 +126,39 @@ src/
 │   ├── ErrorState.tsx
 │   ├── InteractionForm.tsx
 │   ├── LoadingState.tsx
+│   ├── LoginState.tsx
 │   └── StatusBadge.tsx
-│
-├── mock/
-│   └── mockApi.ts
-│
-├── test/
-│   ├── App.test.tsx
-│   ├── CustomerEditForm.test.tsx
-│   ├── CustomerForm.test.tsx
-│   ├── CustomerList.test.tsx
-│   ├── CustomerProfile.test.tsx
-│   ├── EmptyState.test.tsx
-│   ├── ErrorState.test.tsx
-│   ├── InteractionForm.test.tsx
-│   ├── LoadingState.test.tsx
-│   ├── mockApi.test.ts
-│   ├── StatusBadge.test.tsx
-│   └── tokenStore.test.ts
-│
+├── security/
+│   ├── auth.ts          # login/logout, token in localStorage (in use)
+│   └── tokenStore.ts    # memory-only holder (reference, not wired up)
 ├── types/
 │   └── crm.ts
-│
 ├── utils/
 │   └── validateCustomerDraft.ts
-│
+├── test/                # Vitest + Testing Library suites + setup.ts
 ├── App.tsx
 ├── main.tsx
-└── ...
+└── styles.css
 ```
 
-### What the frontend tests cover
+## What the tests cover
 
-The tests within src/test are automated and demonstrate the following.
+`src/test/` runs under Vitest + Testing Library (jsdom):
 
-Customer Journey
-
-- Seeded customers are displayed
-- Customer profiles load
-- Interactions load
-- Customer can be selected
-
-Customer Creation
-
-- Creation form opens
-- Customer fields render
-- Full name is required
-- Email is required and valid
-- Valid customer is created
-- Creation can be canceled.
-
-Customer Editing
-
-- Existing customer values load
-- Name, email, phone, and status can be changed
-- Full name is required
-- Email is required and valid
-- Editing can be canceled.
-
-Accessibility
-
-- Accessible form labels
-- Selected customer state
-- Semantic buttons
-- Loading/Error/Empty states
-
-Security
-
-- Token storage remains memory only
-- Credentials are not persisted in browser storage
-
-### Evidence
-
-The frontend evidence should demonstrate:
-
-| Area                         | Evidence                                                             |
-| ---------------------------- | -------------------------------------------------------------------- |
-| Search                       | `App.test.tsx`, live UI                                              |
-| Customer selection           | `CustomerList.test.tsx`, `App.test.tsx`                              |
-| Customer profile             | `CustomerProfile.test.tsx`, `App.test.tsx`                           |
-| Customer creation            | `CustomerForm.test.tsx`, `App.test.tsx`                              |
-| Customer editing             | `CustomerEditForm.test.tsx`, `App.test.tsx`                          |
-| Validation                   | `CustomerForm.test.tsx`, `CustomerEditForm.test.tsx`, `App.test.tsx` |
-| Interactions                 | `InteractionForm.test.tsx`, `CustomerProfile.test.tsx`               |
-| Loading states               | `LoadingState.test.tsx`                                              |
-| Empty states                 | `EmptyState.test.tsx`                                                |
-| Error handling               | `ErrorState.test.tsx`                                                |
-| Selected-state accessibility | `CustomerList.test.tsx`                                              |
-| Token handling               | `tokenStore.test.ts`                                                 |
-| Mock API behavior            | `mockApi.test.ts`                                                    |
-| Typed API boundary           | `crmApi.ts`, `types/crm.ts`                                          |
-| Real persistence             | UI/API test + PostgreSQL verification                                |
+- **Customer journey:** seeded customers render, profiles load, interactions
+  load, a customer can be selected (`App.test.tsx`, `CustomerList.test.tsx`,
+  `CustomerProfile.test.tsx`).
+- **Creation:** form opens, fields render, full name required, email required
+  and valid, valid customer created, cancel works (`CustomerForm.test.tsx`).
+- **Editing:** existing values load, each field editable, validation, cancel
+  (`CustomerEditForm.test.tsx`).
+- **Interactions:** form submits and the timeline updates
+  (`InteractionForm.test.tsx`, `CustomerProfile.test.tsx`).
+- **Login:** success routes to the app; a 401 shows "invalid credentials", logs
+  the error, and stays on the login screen (`Login.test.tsx`).
+- **States & a11y:** loading / empty / error components, labeled form fields,
+  semantic buttons, selected-row state (`LoadingState`, `EmptyState`,
+  `ErrorState`, `StatusBadge` tests).
+- **Token holder:** `tokenStore.test.ts` verifies the memory-only helper never
+  writes to `localStorage` / `sessionStorage`.
+- **Mock API:** `mockApi.test.ts` exercises the fake backend.
