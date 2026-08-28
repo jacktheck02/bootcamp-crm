@@ -1,13 +1,25 @@
-# NFRs — Customer Management Platform (Week 6 targets)
+# NFRs — Customer Management Platform
 
-| Category | Target | How measured | Environment |
-| -------- | ------ | ------------ | ----------- |
-| Latency (p95 interaction create) | p95 <= 400 ms for `POST /api/v1/interactions` over 200 requests | k6 or JMeter run; compute p95 from run report | Local Docker + backend on dev laptop |
-| Security authn/authz | Unauthenticated `POST /api/v1/interactions` returns 401; AGENT token on admin route returns 403 | Spring security integration tests + manual curl evidence during security rollout | CI and local |
-| Data durability | 100% of successful interaction writes are present in PostgreSQL after API 201 response | Integration test verifies API response + SQL row existence | Testcontainers (Postgres) |
-| Event publication correctness | 100% of successful writes publish exactly one `CustomerInteractionRecordedV1` with matching correlation ID | Integration test or consumer probe comparing DB row and event payload | Testcontainers (Kafka + Postgres) |
-| Availability / health | `/actuator/health` is UP during demo; smoke endpoint pass rate >= 99% in 50 consecutive checks | Smoke script and pipeline artifact logs | k3s deployment target |
-| Recovery time objective | Rollback to prior release within <= 10 minutes after failed smoke test | Timed rollback rehearsal with command transcript/screenshots | k3s + CI pipeline |
-| Observability traceability | 100% of write requests include and log correlation ID; ID appears in API log and event payload | Log assertion tests + log sample in evidence pack | Local and k3s |
-| Accessibility | Core workflow is keyboard-operable with visible focus and labeled form fields; no critical axe violations | axe/Lighthouse report + manual keyboard walkthrough | Chrome latest |
-| Privacy / data handling | No real PII committed; synthetic fixture emails only (`*.example.test`) | Repo scan + PR checklist + reviewer sign-off | GitHub PR and CI |
+Targets for the CRM slice, with current status. Endpoints and environments
+match the build (`POST /customers/{id}/interactions`, OpenShift Developer
+Sandbox).
+
+| Category | Target | How measured | Status |
+| -------- | ------ | ------------ | ------ |
+| Latency (interaction create) | p95 ≤ 400 ms for `POST /customers/{id}/interactions` over 200 requests | k6/JMeter run against local Docker + backend | Not measured |
+| AuthN enforcement | Unauthenticated request to a protected route returns `401`; bad role returns `403` | Spring Security integration tests + curl evidence | **Partial** — only `/api/admin/**` and non-customer routes require auth today; customer routes are `permitAll`. A status change without `ROLE_ADMIN` does return `403`. |
+| Data durability | 100% of successful interaction writes are present in PostgreSQL after the API responds | Integration test asserts API response + SQL row | Met — covered by Testcontainers repository/controller tests |
+| Event publication | 100% of successful writes publish exactly one `CustomerEvent` with a matching `correlationId` | Integration test comparing DB row and event payload | **Not met** — producer not wired (ADR-002/003) |
+| Availability / health | `/actuator/health` is `UP` during a demo; smoke check passes on every deploy | Deploy smoke step in `build.yml` | Met for deploys |
+| Recovery | Failed deploy rolls back automatically to the previous revision | `oc rollout undo` in the pipeline's failure path | Met (automated); RTO not timed |
+| Traceability | Write requests carry a correlation id that appears in API logs and (later) the event payload | Log assertions + evidence sample | **Partial** — frontend sends `X-Correlation-Id`; backend echoes it into error bodies and the consumer logs it; not yet in success responses or a published event |
+| Accessibility | Core workflow is keyboard-operable with visible focus and labeled fields; no critical axe violations | axe/Lighthouse + manual keyboard walkthrough; component tests assert labels/roles | Partial — a11y assertions exist in the Vitest suite; no axe/Lighthouse run |
+| Privacy / data handling | No real PII in the repo; synthetic fixtures only | Repo scan + PR review; CI runs CodeQL and OWASP dependency-check | Met — fixtures are synthetic |
+
+## Notes
+
+- "Environment" for latency/durability tests is local Docker Compose
+  (`postgres` + `kafka`) with the backend run from `./mvnw spring-boot:run`.
+- Security integration tests run in CI via `./mvnw verify` (Testcontainers).
+- The deploy target is the OpenShift Developer Sandbox; see `RUNBOOK.md` and
+  `docs/adrs/ADR-005-openshift-deploy.md`.

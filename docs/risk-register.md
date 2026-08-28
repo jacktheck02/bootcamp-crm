@@ -1,13 +1,17 @@
 # Risk register
 
+Scored against the current build. The deploy target is the OpenShift Developer
+Sandbox (not k3s); Kafka event publication is designed but the producer is not
+yet wired in, so R2 is currently latent.
+
 | ID | Risk | Likelihood (1-5) | Impact (1-5) | Score | Trigger | Mitigation | Contingency | Owner |
 | -- | ---- | ---------------- | ------------ | ----- | ------- | ---------- | ----------- | ----- |
 | R1 | Postgres unavailable during demo or CI runs | 3 | 5 | 15 | Health check fails, connection refused, migration fails | Compose health checks, startup readiness probe, migration check in CI | Switch to recorded evidence + rerun using fresh container and seed script | Backend lead |
-| R2 | Kafka broker instability causes lost/late interaction events | 3 | 4 | 12 | Consumer lag spikes, publish errors, missing event in demo flow | Retries, producer acks config, idempotent consumer, DLT topic | Demonstrate persisted DB record + replay event from durable source | Messaging owner |
-| R3 | JWT/RBAC misconfiguration blocks valid traffic or permits unauthorized access | 3 | 5 | 15 | Smoke tests fail with 401/403 mismatch or open endpoint detected | Security integration tests, role matrix review, deny-by-default policy | Roll back to last known-good config and rerun smoke | Security owner |
+| R2 | Kafka event path incomplete or unstable (producer not yet wired; broker instability once it is) | 3 | 4 | 12 | Missing event in demo flow, consumer lag, publish errors | Wire producer with after-commit publish, idempotent consumer (done), add DLT + retries | Demonstrate persisted DB record; replay event from a durable source | Messaging owner |
+| R3 | Token auth / RBAC misconfiguration blocks valid traffic or leaves endpoints open | 4 | 5 | 20 | 401/403 mismatch in tests, open endpoint detected | Security integration tests, route-matrix review, move customer routes to deny-by-default (currently `permitAll`), real signed JWT | Roll back to last known-good `SecurityConfig` and rerun smoke | Security owner |
 | R4 | Frontend-backend contract drift breaks user journey | 4 | 4 | 16 | UI runtime errors, 4xx schema mismatch, missing fields | Typed API contracts, integration tests, contract review before merge | Hotfix adapter layer and freeze schema changes until defense | Frontend lead |
 | R5 | Database migration fails during integration or deploy | 3 | 4 | 12 | Migration script error, startup crash, schema mismatch | Versioned migrations, migration dry-runs in CI/Testcontainers, rollback script | Roll back to last known-good migration state and redeploy prior artifact | Backend lead |
 | R6 | Demo environment outage (service unavailable/network issue) | 2 | 5 | 10 | Health endpoint down, cluster or laptop network instability | Pre-demo smoke run, local fallback environment, cached artifacts | Switch to backup environment and replay prepared evidence pack | DevOps owner |
 | R7 | Secrets or sensitive data accidentally committed | 2 | 5 | 10 | Secret scanner alert, reviewer detects real email/token | Use `.env.example`, CI secret scanning, PR checklist | Rotate exposed secret immediately and purge history if needed | Repo maintainer |
-| R8 | Deployment to k3s fails near defense window | 2 | 5 | 10 | Image pull/backoff, failed rollout, smoke failure | Rehearse deploy and rollback, keep digest-pinned prior image | Roll back to previous digest and present evidence from prior successful deploy | DevOps owner |
+| R8 | Deployment to the OpenShift sandbox fails near the defense window | 2 | 5 | 10 | `ImagePullBackOff`, failed rollout, smoke failure, expired `oc` token | Rehearse deploy/rollback, keep baseline image tags pullable in quay.io, rotate the ServiceAccount token before it expires | Pipeline auto-runs `oc rollout undo`; present evidence from the prior successful deploy | DevOps owner |
 | R9 | Team capacity bottleneck on one critical owner | 3 | 3 | 9 | Stories blocked waiting for one contributor | Pair on P0 stories, daily sync with blocker log, explicit backup owner | Reduce P2 scope and reassign backup to unblock P0 | Team lead |

@@ -1,4 +1,6 @@
-# Prioritized backlog — Week 6 CRM
+# Backlog — CRM slice
+
+Prioritized stories with current status against the build.
 
 ## Prioritization rules
 
@@ -8,22 +10,23 @@
 
 ## Backlog
 
-| ID | Priority | Phase target | Story | Acceptance criteria (summary) | Owner |
-| -- | -------- | ------------ | ----- | ------------------------------ | ----- |
-| CAP-12 | P0 | Phase 2 | As an agent, I can record an interaction for `CUS-1001` so history is preserved for the next agent. | `POST /api/v1/interactions` returns 201 for valid payload, persists row, emits `CustomerInteractionRecordedV1`, preserves `lab-request-001`. | Backend lead |
-| CAP-13 | P0 | Phase 3 | As an agent, I can search and open customer profile for `CUS-1001` and `CUS-1002`. | UI search finds fixture customers and profile page loads from API data. | Frontend lead |
-| CAP-14 | P0 | Phase 3 | As an agent, I can view timeline including the interaction created in CAP-12. | Timeline displays persisted interaction after refresh, with timestamp and type. | Full-stack pair |
-| CAP-15 | P1 | Phase 3 | As an agent, I can update customer status from `PROSPECT` to `ACTIVE`. | Valid update persists in DB and reflects in UI; invalid transition blocked with clear error. | Backend lead |
-| CAP-16 | P0 | Phase 4 | As a platform operator, I enforce JWT and role-based access for CRM endpoints. | Protected endpoints return 401 without token and 403 for wrong role; AGENT and ADMIN routes documented. | Security owner |
-| CAP-17 | P0 | Phase 4 | As a team, we can build/test/scan in CI before deploy. | GitHub Actions gates pass (build, tests, lint/scan) and artifact links are captured in evidence index. | DevOps owner |
-| CAP-18 | P0 | Phase 4 | As a team, we can deploy and rollback safely in k3s. | Digest-pinned deployment succeeds, smoke tests pass, rollback rehearsal completes <= 10 minutes. | DevOps owner |
-| CAP-19 | P1 | Phase 2-4 | As a developer, I can trace a request by correlation ID across logs and events. | `lab-request-001` appears in API logs and emitted event payload. | Observability owner |
-| CAP-20 | P1 | Phase 2 | As a maintainer, I can apply schema changes repeatably. | Versioned migration creates required tables and runs in CI/integration tests. | Backend lead |
-| CAP-21 | P2 | Phase 5 | As a stakeholder, I can review a reproducible defense packet. | Evidence index links demo claims to tests, pipeline runs, deploy proof, and known risks. | PM/facilitator |
+| ID | Priority | Story | Acceptance (summary) | Status |
+| -- | -------- | ----- | -------------------- | ------ |
+| CAP-12 | P0 | As an agent, I can record an interaction for a customer so history is preserved. | `POST /customers/{id}/interactions` returns `201`, persists the row, returns it with `createdAt`. | **Done** for the API + UI. Event emission (`CustomerEvent`) still **pending** — see CAP-19. |
+| CAP-13 | P0 | As an agent, I can search and open a customer profile. | UI search finds `CUS-1001` / `CUS-1002`; profile loads from API data. | Done |
+| CAP-14 | P0 | As an agent, I can view a timeline including a newly created interaction. | Timeline shows persisted interactions newest-first with type and timestamp. | Done |
+| CAP-15 | P1 | As an agent/admin, I can update customer status. | Valid update persists and reflects in the UI; status change requires `ROLE_ADMIN` (else `403`). | Done |
+| CAP-16 | P0 | As a platform operator, I enforce token auth and role-based access for CRM endpoints. | Protected endpoints return `401` without a token and `403` for the wrong role; route matrix documented. | **Partial** — token auth + admin status-change RBAC done; customer routes still `permitAll`; token is not a signed JWT. ADR-004. |
+| CAP-17 | P0 | As a team, we build/test/scan in CI before deploy. | GitHub Actions gates pass: `mvn verify` (Testcontainers), frontend build/test, OWASP dependency-check, CodeQL. | Done (`.github/workflows/build.yml`) |
+| CAP-18 | P0 | As a team, we can deploy and roll back safely. | Deploy to the OpenShift sandbox succeeds, smoke test passes, failed deploys auto-roll-back one revision. | Done. Images are SHA-tagged, not digest-pinned (ADR-005). |
+| CAP-19 | P1 | As a developer, I can trace a request by correlation id across logs and events. | `lab-request-001` appears in API logs and the emitted event payload. | **Partial** — frontend sends it; backend echoes it into error bodies and the consumer logs it; no published event yet. ADR-003. |
+| CAP-20 | P1 | As a maintainer, I can apply schema changes repeatably. | Versioned migration creates the required tables and runs in CI/integration tests. | Done (Flyway `V1`–`V4`, `ddl-auto=validate`) |
+| CAP-21 | P2 | As a stakeholder, I can review a reproducible evidence packet. | Evidence index links demo claims to tests, pipeline runs, deploy proof, and known risks. | Open |
 
 ## Dependency notes
 
-- CAP-12 must complete before CAP-14.
-- CAP-13 enables CAP-14 and CAP-15 in the UI.
-- CAP-16 gates CAP-18 production-style acceptance.
-- CAP-17 gates CAP-18 promotion/deploy flow.
+- CAP-12 completed before CAP-14.
+- CAP-13 enabled CAP-14 and CAP-15 in the UI.
+- CAP-16 (deny-by-default) and CAP-19 (event + correlation) are the main open
+  threads; both are tracked in ADRs 002–004.
+- CAP-17 gates CAP-18's deploy flow.

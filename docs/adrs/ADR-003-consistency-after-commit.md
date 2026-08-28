@@ -1,37 +1,56 @@
 # ADR-003: Consistency strategy for persist + publish
 
-- **Status:** Accepted
-- **Date:** 2026-08-23
+- **Status:** Accepted (target) — **not yet implemented**
+- **Date:** 2026-08-23 (original) · revised 2026-08-27 to match the build
 - **Deciders:** Capstone team
 - **Related backlog:** CAP-12, CAP-19
+- **Related ADRs:** ADR-002 (Kafka)
 
 ## Context
 
-The interaction workflow requires both a durable database write and an emitted Kafka event.
-If the event is published before commit, consumers may observe data that is later rolled back.
-If publication is omitted after commit, downstream systems lose audit/notification signals.
+A write workflow needs both a durable database write and an emitted Kafka
+event. Publishing before commit risks emitting events for rows that later roll
+back; skipping publication after commit loses downstream signal.
+
+**Current build:** writes commit to PostgreSQL through the `@Transactional`
+service / repository layer and **no event is published** — the producer
+(`CustomerEventPublisher`) is not called from any code path. This ADR records
+the strategy to adopt when the producer is wired in.
 
 ## Decision
 
-For Week 6, we will use an **after-commit publish** strategy:
+Use an **after-commit publish** strategy:
 
-1. Validate and persist interaction data in a database transaction.
-2. Publish `CustomerInteractionRecordedV1` only after successful commit.
-3. Include `correlationId` and unique event ID for idempotent consumer handling.
+1. Validate and persist the write inside a database transaction.
+2. Publish the `CustomerEvent` only after that transaction commits, via a
+   `@TransactionalEventListener(phase = AFTER_COMMIT)` (or an explicit publish
+   call placed after `save(...)` returns within the service method).
+3. Populate the event with a fresh `eventId` (UUID) and the request
+   `correlationId`, taken from the `X-Correlation-Id` header that the frontend
+   (`api/http.ts`) already sends and `GlobalExceptionHandler` already echoes.
+4. Rely on consumer-side idempotency by `eventId` — already implemented in
+   `CustomerEventListener` / `ProcessedEventStore`.
 
-Outbox pattern is documented as a post-capstone improvement, not required for this delivery.
+A transactional outbox is the post-capstone upgrade if producer failures after
+commit prove to be a real problem; it is not required for this delivery.
 
 ## Alternatives considered
 
 | Option | Pros | Cons | Why not |
 | ------ | ---- | ---- | ------- |
-| Publish before commit | Simple wiring | Can emit invalid events on rollback | Violates data correctness |
-| Dual write without transaction coordination | Fast initial build | Inconsistent state risk | Too risky for evidence requirements |
-| Transactional outbox now | Strong reliability model | Additional schema and worker complexity | Deferred due to Week 6 timebox |
+| Publish before commit | Simple wiring | Emits events for rolled-back rows | Violates correctness |
+| Dual write, no ordering | Fast to build | Inconsistent state on partial failure | Too risky for evidence |
+| Transactional outbox now | Strong reliability | Extra table + relay worker | Deferred to keep the slice small |
 
 ## Consequences
 
-- **Positive:** Keeps event stream aligned with committed source-of-truth data.
-- **Negative / follow-ups:** Producer failures after commit require retry strategy and monitoring.
-- **NFR impact:** Improves traceability and consistency evidence across implementation, integration, and release phases.
-- **Evidence later steps will need:** test proving 201 response implies DB row + one emitted event.
+- **Positive (once implemented):** the event stream never contains writes that
+  did not commit; correlation id flows API → log → event.
+- **Known risk:** a producer failure *after* commit leaves a committed row with
+  no event. Mitigation: `KafkaTemplate` retries + error logging now; outbox
+  later.
+- **Gap:** until the producer is wired in (ADR-002 follow-up), this decision is
+  documentation only.
+- **Evidence target:** an integration test proving a `201`/`200` write implies
+  exactly one `CustomerEvent` on `customer-events` with a matching
+  `correlationId`.
