@@ -2,6 +2,8 @@ package com.pnc.crm.api;
 
 import com.pnc.crm.entities.Customer;
 import com.pnc.crm.entities.Interaction;
+import com.pnc.crm.event.CustomerEvent;
+import com.pnc.crm.event.CustomerEventPublisher;
 import com.pnc.crm.repositories.CustomerRepository;
 import com.pnc.crm.repositories.InteractionRepository;
 import com.pnc.crm.service.CustomerService;
@@ -22,8 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,11 +37,13 @@ public class CustomerController {
     private final CustomerRepository repository;
     private final InteractionRepository interactionRepository;
     private final CustomerService service;
+    private final CustomerEventPublisher eventPublisher;
 
-    public CustomerController(CustomerRepository repository, InteractionRepository interactionRepository, CustomerService service) {
+    public CustomerController(CustomerRepository repository, InteractionRepository interactionRepository, CustomerService service, CustomerEventPublisher eventPublisher) {
         this.repository = repository;
         this.interactionRepository = interactionRepository;
         this.service = service;
+        this.eventPublisher = eventPublisher;
     }
 
     @PostMapping
@@ -45,7 +51,9 @@ public class CustomerController {
         if (customer.publicIdIsNull()) {
             customer.setPublicId(service.generatePublicId());
         }
-        return repository.save(customer);
+        Customer saved = repository.save(customer);
+        eventPublisher.publish(buildEvent("CUSTOMER_CREATED", saved));
+        return saved;
     }
 
     @GetMapping
@@ -91,7 +99,9 @@ public class CustomerController {
         existing.setPhone(input.getPhone());
         existing.setStatus(input.getStatus());
 
-        return repository.save(existing);
+        Customer saved = repository.save(existing);
+        eventPublisher.publish(buildEvent("CUSTOMER_UPDATED", saved));
+        return saved;
     }
 
     @GetMapping("/{id}/interactions")
@@ -116,6 +126,20 @@ public class CustomerController {
 
         Interaction saved = interactionRepository.save(interaction);
         return toInteractionResponse(id, saved);
+    }
+
+    private CustomerEvent buildEvent(String eventType, Customer customer) {
+        return new CustomerEvent(
+                UUID.randomUUID().toString(),
+                eventType,
+                1,
+                Instant.now(),
+                customer.getPublicId(),
+                UUID.randomUUID().toString(),
+                "crm",
+                new CustomerEvent.CustomerData(
+                        customer.getFullName(),
+                        customer.getStatus() != null ? customer.getStatus().name() : null));
     }
 
     static class ResourceNotFoundException extends RuntimeException {
