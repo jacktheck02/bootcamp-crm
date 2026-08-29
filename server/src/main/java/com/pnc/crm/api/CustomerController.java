@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,11 +42,10 @@ public class CustomerController {
     }
 
     @PostMapping
-    public Customer addCustomer(@Valid @RequestBody Customer customer) {
-        if (customer.publicIdIsNull()) {
-            customer.setPublicId(service.generatePublicId());
-        }
-        return repository.save(customer);
+    public Customer addCustomer(
+            @Valid @RequestBody Customer customer,
+            @RequestHeader(value = "X-Correlation-Id", required = false) String correlationId) {
+        return service.create(customer, correlationId);
     }
 
     @GetMapping
@@ -79,19 +79,17 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public Customer updateCustomer(@PathVariable("id") String id, @Valid @RequestBody Customer input) {
+    public Customer updateCustomer(
+            @PathVariable("id") String id,
+            @Valid @RequestBody Customer input,
+            @RequestHeader(value = "X-Correlation-Id", required = false) String correlationId) {
         Customer existing = repository.findByPublicId(id).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
         if (isStatusChange(existing, input) && !currentUserHasRole("ADMIN")) {
             throw new AccessDeniedException("Only admins can change customer status");
         }
 
-        existing.setFullName(input.getFullName());
-        existing.setEmail(input.getEmail());
-        existing.setPhone(input.getPhone());
-        existing.setStatus(input.getStatus());
-
-        return repository.save(existing);
+        return service.update(existing, input, correlationId);
     }
 
     @GetMapping("/{id}/interactions")
