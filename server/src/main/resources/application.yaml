@@ -2,8 +2,17 @@ spring:
   application:
     name: crm
   kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       group-id: customer-events-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.pnc.crm.event
+        spring.json.value.default.type: com.pnc.crm.event.CustomerEvent
+        spring.json.use.type.headers: false
   datasource:
     url: jdbc:postgresql://localhost:5432/crm
     username: ${POSTGRES_USER:crm}

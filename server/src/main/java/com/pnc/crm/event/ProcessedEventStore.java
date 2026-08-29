@@ -13,4 +13,8 @@ public class ProcessedEventStore {
     public boolean markIfNew(String eventId) {
         return seen.add(eventId);
     }
+
+    public boolean hasSeen(String eventId) {
+        return seen.contains(eventId);
+    }
 }
